@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="author" content="Hari KT, Paul M Jones" />
+    <meta name="date" content="07/07/2013"/>
+    <meta name="generator" content="easybook 5.0-DEV"/>
+
+    <title>Controller | The complete reference for Aura</title>
+
+    <link rel="stylesheet" href="./css/easybook.css" />
+
+</head>
+
+<body class="item chapter">
+<div class="container">
+<div class="menu">
+    <div class="row">
+        <h1 class="span9"><a href="./index.html">The complete reference for Aura</a></h1>
+        <p class="span3">
+                        <a href="./chapter-4.html"><span>&larr;</span> Previous</a>
+            
+                        <a href="./chapter-6.html">Next <span>&rarr;</span></a>
+                    </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span9">
+        <h1 id="controller"><span>Chapter 5</span> Controller</h1>
+        <p>The Aura Framework controller is the extended version of Aura Web 
+package, which provides tools to build web page controllers, including
+an <code>AbstractPage</code> for action methods, a <code>Context</code> class for discovering the
+request environment, and a <code>Response</code> transfer object that describes the
+eventual HTTP response. (Note that the <code>Response</code> transfer object is not
+itself an HTTP response.) It also includes a <code>Signal</code> interface to handle
+calls to controller hooks, as well as a <code>Renderer</code> interface to allow for
+different rendering strategies.</p>
+
+<h2 id="creating-your-controller">5.1 Creating your controller</h2>
+
+<p>We create a page controller class of our own, extending the 
+<code>Aura\Framework\Web\Controller\AbstractPage</code></p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Vendor\Package\Web<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Web\Controller\AbstractPage<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> Page <span class="kw2">extends</span> AbstractPage
+<span class="br0">&#123;</span>
+&nbsp;
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h2 id="the-execution-cycle">5.2 The Execution Cycle</h2>
+
+<p>The heart of the page controller is its execution cycle.</p>
+
+<p>The <code>exec()</code> cycle runs ...</p>
+
+<ul>
+<li><p>the <code>preExec()</code> hook to prepare for overall execution,</p></li>
+<li><p>the <code>preAction()</code> hook to prepare for the action,</p></li>
+<li><p>the <code>action()</code> method to invoke the method determined by the <code>'action'</code>
+param value</p></li>
+<li><p>the <code>postAction()</code> hook,</p></li>
+<li><p>the <code>preRender()</code> hook to prepare for rendering,</p></li>
+<li><p>the <code>render()</code> method to render a presentation (this is up to the developer
+to create),</p></li>
+<li><p>the <code>postRender()</code> hook, and</p></li>
+<li><p>the <code>postExec()</code> hook to do work after overall execution.</p></li>
+</ul>
+
+<h2 id="action-methods">5.3 Action Methods</h2>
+
+<p>At this point, calling <code>exec()</code> on the page controller will do nothing,
+because there are no corresponding action methods. To add an action method to
+the page controller, create it as a method named <code>action*()</code> with any
+parameters it needs:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Example\Package\Web\<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Web\Controller\AbstractPage<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> Page <span class="kw2">extends</span> AbstractPage
+<span class="br0">&#123;</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> actionHello<span class="br0">&#40;</span><span class="re0">$noun</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$noun</span> <span class="sy0">=</span> <span class="kw3">htmlspecialchars</span><span class="br0">&#40;</span><span class="re0">$noun</span><span class="sy0">,</span> <span class="kw4">ENT_QUOTES</span><span class="sy0">,</span> <span class="st_h">'UTF-8'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$content</span> <span class="sy0">=</span> <span class="st0">&quot;Hello, <span class="es4">{$noun}</span>!&quot;</span><span class="sy0">;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">data</span><span class="sy0">-&gt;</span><span class="me1">content</span> <span class="sy0">=</span> <span class="re0">$content</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h2 id="the-response-transfer-object">5.4 The Response Transfer Object</h2>
+
+<p>To manipulate the response description, use the <code>$this-&gt;response</code> transfer
+object. Some of the important methods are:</p>
+
+<ul>
+<li><p><code>setContent()</code>: sets the body content</p></li>
+<li><p><code>setHeader()</code>: sets a single header value</p></li>
+<li><p><code>setCookie()</code>: sets a single cookie</p></li>
+<li><p><code>setRedirect()</code>: sets a <code>Location:</code> header for redirect, with an optional
+status code and message (default is <code>'302 Found'</code>.)</p></li>
+<li><p><code>setStatusCode()</code> and <code>setStatusText()</code>: sets the HTTP status code and
+message</p></li>
+</ul>
+
+<p>For more information, please review the [Response][] class.</p>
+
+<h2 id="the-context-object">5.5 The Context Object</h2>
+
+<p>You can discover the web request environment using the <code>$this-&gt;context</code>
+object. Some of the important methods are:</p>
+
+<ul>
+<li><p><code>getQuery()</code>: gets a $_GET value</p></li>
+<li><p><code>getPost()</code>: gets a $_POST value</p></li>
+<li><p><code>getFiles()</code>: gets a $_FILES value</p></li>
+<li><p><code>getInput()</code>: gets the raw <code>php://input</code> value</p></li>
+<li><p><code>getJsonInput()</code>: gets the raw <code>php://input</code> value and <code>json_decode()</code> it</p></li>
+<li><p><code>isGet()</code>, <code>isPut()</code>, <code>isXhr()</code>, etc.: Tells if the request method was
+<code>GET</code>, <code>PUT</code>, an <code>Xml-HTTP-Request</code>, etc.</p></li>
+</ul>
+
+<p>For more information, please review the [Context][] class.</p>
+
+<p>An example "search" action using a "terms" query string parameter might look
+like this:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">public</span> <span class="kw2">function</span> actionSearch<span class="br0">&#40;</span><span class="br0">&#41;</span>
+<span class="br0">&#123;</span>
+    <span class="re0">$terms</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">context</span><span class="sy0">-&gt;</span><span class="me1">getQuery</span><span class="br0">&#40;</span><span class="st_h">'terms'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">if</span> <span class="br0">&#40;</span><span class="re0">$terms</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="co1">// ... now search a database ...</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<p>Given a URI with the query string <code>'?terms=foo+bar+baz'</code>, the <code>$terms</code>
+variable would be <code>'foo bar baz'</code>. If there was no <code>'terms'</code> item in the query
+string, <code>$terms</code> would be null.</p>
+
+<h2 id="the-accept-object">5.6 The Accept Object</h2>
+
+<p>You can discover what the client will accept using the <code>$this-&gt;accept</code> object.</p>
+
+<ul>
+<li><p><code>getContentType()</code>: returns the accepted media types</p></li>
+<li><p><code>getCharset()</code>: returns the accepted character sets</p></li>
+<li><p><code>getEncoding()</code>: returns the accepted encodings</p></li>
+<li><p><code>getLanguage()</code>: returns the accepted languages</p></li>
+</ul>
+
+<h2 id="data-and-rendering">5.7 Data and Rendering</h2>
+
+<p>Usually, you will not want to manipulate the <code>Response</code> content directly in
+the action method. It is almost always the case that you will collect data
+inside the action method, then hand off to a rendering system to present that
+data. The <code>AbstractPage</code> provides a <code>$data</code> property and a <code>Renderer</code> strategy
+system for just that purpose.</p>
+
+<p>Here is a naive example of how to use the <code>$data</code> property:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Vendor\Package\Web\Greet<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Web\Controller\AbstractPage<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> Page <span class="kw2">extends</span> AbstractPage
+<span class="br0">&#123;</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> actionHello<span class="br0">&#40;</span><span class="re0">$noun</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">data</span><span class="sy0">-&gt;</span><span class="me1">noun</span> <span class="sy0">=</span> <span class="re0">$noun</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h2 id="view-template-and-layout">5.8 View template and layout</h2>
+
+<p>In-order to render the proper template, we need to assign which view and 
+layout need to be rendered.</p>
+
+<p>You can assign which view it needs to render as <code>$this-&gt;view = 'viewname'</code>
+and which layout need to be assigned via <code>$this-&gt;layout = 'layout-name'</code>.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Vendor\Package\Web\Greet<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Web\Controller\AbstractPage<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> Page <span class="kw2">extends</span> AbstractPage
+<span class="br0">&#123;</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> actionHello<span class="br0">&#40;</span><span class="re0">$noun</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">data</span><span class="sy0">-&gt;</span><span class="me1">noun</span> <span class="sy0">=</span> <span class="re0">$noun</span><span class="sy0">;</span>
+        <span class="co1">// only one view</span>
+        <span class="co1">// $this-&gt;view = 'greet';</span>
+&nbsp;
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">view</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+            <span class="st_h">'.html'</span> <span class="sy0">=&gt;</span> <span class="st_h">'greet.html.php'</span><span class="sy0">,</span>
+            <span class="st_h">'.json'</span> <span class="sy0">=&gt;</span> <span class="st_h">'greet.json.php'</span><span class="sy0">,</span>
+            <span class="st_h">'.xml'</span> <span class="sy0">=&gt;</span> <span class="st_h">'greet.xml.php'</span>
+        <span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="co1">// only one layout</span>
+        <span class="co1">// $this-&gt;layout = 'layout-name';</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">        // if you have multiple alyouts for different formats
+        $this-&gt;layout = [
+            '.html' =&gt; 'default.php',
+            '.json' =&gt; '',
+            '.xml' =&gt; ''
+        ];
+    }
+}</pre>
+</div>
+
+<h2 id="configuration-2">5.9 Configuration</h2>
+
+<p>Now we need to add two things.</p>
+
+<p>Add your controller to the map in the <code>config/default.php</code> file.</p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Aura\Framework\Web\Controller\Factory'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'map'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'&lt;name&gt;'</span><span class="br0">&#93;</span> <span class="sy0">=</span> 
+    <span class="st_h">'Vendor\Package\Web\Greet\Page'</span><span class="sy0">;</span></pre>
+</div>
+
+<p>Add a route, with the same name of the controller you have specified 
+above</p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">get</span><span class="br0">&#40;</span><span class="st_h">'router_map'</span><span class="br0">&#41;</span><span class="sy0">-&gt;</span><span class="me1">add</span><span class="br0">&#40;</span><span class="st_h">'&lt;unique-route-name&gt;'</span><span class="sy0">,</span> <span class="st_h">'/registered'</span><span class="sy0">,</span> <span class="br0">&#91;</span>
+    <span class="st_h">'values'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span>
+        <span class="st_h">'controller'</span> <span class="sy0">=&gt;</span> <span class="st_h">'&lt;name&gt;'</span><span class="sy0">,</span>
+        <span class="st_h">'action'</span> <span class="sy0">=&gt;</span> <span class="st_h">'hello'</span><span class="sy0">,</span>
+    <span class="br0">&#93;</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;</pre>
+</div>
+
+<p>Consider reading routing chapter for more information on routes.</p>
+
+    </div>
+
+    <div class="span3">
+        <div class="item local_toc">
+            <h3>Table of contents</h3>
+
+            <ul class="unstyled">
+                                                <li class="level-1">
+                        <span></span>
+                        <a class="internal" href="./chapter-5.html#controller">Controller</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.1</span>
+                        <a class="internal" href="./chapter-5.html#creating-your-controller">Creating your controller</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.2</span>
+                        <a class="internal" href="./chapter-5.html#the-execution-cycle">The Execution Cycle</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.3</span>
+                        <a class="internal" href="./chapter-5.html#action-methods">Action Methods</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.4</span>
+                        <a class="internal" href="./chapter-5.html#the-response-transfer-object">The Response Transfer Object</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.5</span>
+                        <a class="internal" href="./chapter-5.html#the-context-object">The Context Object</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.6</span>
+                        <a class="internal" href="./chapter-5.html#the-accept-object">The Accept Object</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.7</span>
+                        <a class="internal" href="./chapter-5.html#data-and-rendering">Data and Rendering</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.8</span>
+                        <a class="internal" href="./chapter-5.html#view-template-and-layout">View template and layout</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>5.9</span>
+                        <a class="internal" href="./chapter-5.html#configuration-2">Configuration</a>
+                    </li>
+                                        </ul>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

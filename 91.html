@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="author" content="Hari KT, Paul M Jones" />
+    <meta name="date" content="07/07/2013"/>
+    <meta name="generator" content="easybook 5.0-DEV"/>
+
+    <title>  The complete reference for Aura</title>
+
+    <link rel="stylesheet" href="./css/easybook.css" />
+
+</head>
+
+<body class="item chapter">
+<div class="container">
+<div class="menu">
+    <div class="row">
+        <h1 class="span9"><a href="./index.html">The complete reference for Aura</a></h1>
+        <p class="span3">
+                        <a href="./index.html"><span>&larr;</span> Previous</a>
+            
+                        <a href="./chapter-1.html">Next <span>&rarr;</span></a>
+                    </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span9">
+        <h1 id=""><span>9.1</span> </h1>
+        <h1 id="forms">Chapter 9 Forms</h1>
+
+<p>You can create forms with the help of Aura.Input package. which contains 
+tools to describe and filter user inputs from an HTML 
+form, including sub-forms/sub-fieldsets, fieldset collections, an interface
+for injecting custom filter systems, and CSRF protection. Note that this
+package does not include output functionality, although the "hints" provided
+by the <code>Form</code> object can be used with any presentation system to generate an
+HTML form.</p>
+
+<p>Getting Started</p>
+
+<h2 id="instantiation">9.1 Instantiation</h2>
+
+<p>The easiest way to instantiate a new <code>Form</code> is to include the <code>instance.php</code>
+script:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$form</span> <span class="sy0">=</span> <span class="kw1">require</span> <span class="st0">&quot;/path/to/Aura.Input/scripts/instance.php&quot;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>Alternatively, we can add the <code>Aura.Input</code> package to an autoloader, and
+instantiate manually:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">use</span> Aura\Input\Form<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Input\Builder<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Input\Filter<span class="sy0">;</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">$form = new Form(new Builder, new Filter);</pre>
+</div>
+
+<h2 id="setting-input-fields-on-the-form">9.2 Setting Input Fields On The Form</h2>
+
+<p>Use the <code>setField()</code> method to add an input field to the form.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'first_name'</span><span class="br0">&#41;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'last_name'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'email'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'email_confirm'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'website'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'street_address'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'city'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'state'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'zip'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'phone_number'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'phone_type'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'birthday'</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>(We will discuss later how to set the field type, attributes, and options;
+these will provide hints to our view layer on how to present the field.)</p>
+
+<h2 id="setting-filters-on-the-form">9.3 Setting Filters On The Form</h2>
+
+<p>Aura.Input comes with a very basic filter system. Use the <code>getFilter()</code> method
+to get the <code>Filter</code> object, then add rules to the filter using the <code>setRule()</code>
+method. The first parameter to <code>setRule()</code> is the name of the form field to
+test; the second parameter is the message to use if the rule fails; the third
+parameter is a closure to test the form input value.</p>
+
+<p>The closure for the rule should take two parameters: the value of the field
+being tested, and optionally the set of all fields in the form (in case we
+need to compare to other inputs). The closure should return <code>true</code> if the rule
+passes, or <code>false</code> if it does not.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$filter</span> <span class="sy0">=</span> <span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">getFilter</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'first_name'</span><span class="sy0">,</span>
+    <span class="st_h">'First name must be alphabetic only.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="kw1">return</span> <span class="kw3">ctype_alpha</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'last_name'</span><span class="sy0">,</span>
+    <span class="st_h">'Last name must be alphabetic only.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="kw1">return</span> <span class="kw3">ctype_alpha</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// note that this rule compares the value to that of another field</span>
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'email_confirm'</span><span class="sy0">,</span>
+    <span class="st_h">'The email addresses must match.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="sy0">,</span> <span class="re0">$fields</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="kw1">return</span> <span class="re0">$value</span> <span class="sy0">==</span> <span class="re0">$fields</span><span class="sy0">-&gt;</span><span class="me1">email</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'state'</span><span class="sy0">,</span>
+    <span class="st_h">'State not recognized.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="re0">$states</span> <span class="sy0">=</span> <span class="kw3">array</span><span class="br0">&#40;</span>
+            <span class="st_h">'AK'</span><span class="sy0">,</span> <span class="st_h">'AL'</span><span class="sy0">,</span> <span class="st_h">'AR'</span><span class="sy0">,</span> <span class="st_h">'AZ'</span><span class="sy0">,</span>
+            <span class="co1">// ...</span>
+            <span class="st_h">'WA'</span><span class="sy0">,</span> <span class="st_h">'WI'</span><span class="sy0">,</span> <span class="st_h">'WV'</span><span class="sy0">,</span> <span class="st_h">'WY'</span><span class="sy0">,</span>
+        <span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">return</span> <span class="kw3">in_array</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="sy0">,</span> <span class="re0">$states</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'zip'</span><span class="sy0">,</span>
+    <span class="st_h">'ZIP code must be between 00000 and 99999.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="kw1">return</span> <span class="kw3">ctype_digit</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span>
+            <span class="sy0">&amp;&amp;</span> <span class="re0">$value</span> <span class="sy0">&gt;=</span> <span class="nu8">00000</span>
+            <span class="sy0">&amp;&amp;</span> <span class="re0">$value</span> <span class="sy0">&lt;=</span> <span class="nu0">99999</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'phone_type'</span><span class="sy0">,</span>
+    <span class="st_h">'Phone type not recognized.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="re0">$types</span> <span class="sy0">=</span> <span class="kw3">array</span><span class="br0">&#40;</span><span class="st_h">'cell'</span><span class="sy0">,</span> <span class="st_h">'home'</span><span class="sy0">,</span> <span class="st_h">'work'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">return</span> <span class="kw3">in_array</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="sy0">,</span> <span class="re0">$types</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+    <span class="st_h">'birthday'</span><span class="sy0">,</span>
+    <span class="st_h">'Birthday is not a valid date.'</span><span class="sy0">,</span>
+    <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="re0">$datetime</span> <span class="sy0">=</span> <span class="kw3">date_create</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">if</span> <span class="br0">&#40;</span><span class="sy0">!</span> <span class="re0">$datetime</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+            <span class="kw1">return</span> <span class="kw4">false</span><span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+        <span class="re0">$errors</span> <span class="sy0">=</span> \DateTime<span class="sy0">::</span><span class="me2">getLastErrors</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">if</span> <span class="br0">&#40;</span><span class="re0">$errors</span><span class="br0">&#91;</span><span class="st_h">'warnings'</span><span class="br0">&#93;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+            <span class="kw1">return</span> <span class="kw4">false</span><span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+        <span class="kw1">return</span> <span class="kw4">true</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>(We will discuss later how to implement <code>FilterInterface</code> and use our own
+filters.)</p>
+
+<h2 id="populating-and-validating-user-input">9.4 Populating and Validating User Input</h2>
+
+<p>Now that we have input fields, and filters for those inputs, we can fill the
+form with user input and see if the user input is valid. First, we use the
+<code>fill()</code> method to set the input values. We then call the <code>filter()</code> method to
+see if the user input is valid; if not, we show the messages for the inputs
+that did not pass their filter rules.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// fill the form with $_POST array elements</span>
+<span class="co1">// that match the form input names.</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">fill</span><span class="br0">&#40;</span><span class="re0">$_POST</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// apply the filters</span>
+<span class="re0">$pass</span> <span class="sy0">=</span> <span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">filter</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// did all the filters pass?</span>
+<span class="kw1">if</span> <span class="br0">&#40;</span><span class="re0">$pass</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="co1">// yes</span>
+    <span class="kw1">echo</span> <span class="st0">&quot;User input is valid.&quot;</span> <span class="sy0">.</span> PHP_EOL<span class="sy0">;</span>
+<span class="br0">&#125;</span> <span class="kw1">else</span> <span class="br0">&#123;</span>
+    <span class="co1">// no; get the messages.</span>
+    <span class="kw1">echo</span> <span class="st0">&quot;User input is not valid.&quot;</span> <span class="sy0">.</span> PHP_EOL<span class="sy0">;</span>
+    <span class="kw1">foreach</span> <span class="br0">&#40;</span><span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">getMessages</span><span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw1">as</span> <span class="re0">$name</span> <span class="sy0">=&gt;</span> <span class="re0">$messages</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="kw1">foreach</span> <span class="br0">&#40;</span><span class="re0">$messages</span> <span class="kw1">as</span> <span class="re0">$message</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+            <span class="kw1">echo</span> <span class="st0">&quot;Input '<span class="es4">{$name}</span>': <span class="es4">{$message}</span>&quot;</span> <span class="sy0">.</span> PHP_EOL<span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h1 id="advanced-usage">Chapter 9 Advanced Usage</h1>
+
+<h2 id="self-initializing-forms">9.1 Self-Initializing Forms</h2>
+
+<p>In the "Getting Started" example, we create a form object and then manipulate
+it to add inputs.  While perfectly reasonable, sometimes we will want to have
+a form object initialize its own inputs and filters.  To do this, extend
+the <code>Form</code> object and override the <code>init()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Vendor\Package<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Input\Form<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> ContactForm <span class="kw2">extends</span> Form
+<span class="br0">&#123;</span>
+    <span class="kw2">protected</span> <span class="kw2">function</span> init<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="co1">// set input fields</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'first_name'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'last_name'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="co1">// etc.</span>
+&nbsp;
+        <span class="co1">// set input filters</span>
+        <span class="re0">$filter</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getFilter</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">setRule</span><span class="br0">&#40;</span>
+            <span class="st_h">'first_name'</span><span class="sy0">,</span>
+            <span class="st_h">'First name must be alphabetic only.'</span><span class="sy0">,</span>
+            <span class="kw2">function</span> <span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+                <span class="kw1">return</span> <span class="kw3">ctype_alpha</span><span class="br0">&#40;</span><span class="re0">$value</span><span class="br0">&#41;</span><span class="sy0">;</span>
+            <span class="br0">&#125;</span>
+        <span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="co1">// etc.</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<p>Now when we instantiate the <code>ContactForm</code> the inputs and filters will be there
+automatically.</p>
+
+<h2 id="applying-csrf-protections">9.2 Applying CSRF Protections</h2>
+
+<p>Aura.Input comes with an interface for implementations that prevent
+<a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery">cross-site request forgery</a>
+attacks.  To make use of this interface, we will need to provide our own
+CSRF implementation; this is because it depends on two things that Aura.Input
+cannot provide: an object that tells us if the user is authenticated or not,
+and an object to generate and retain a crytpographically secure random value
+for the CSRF token value.  A psuedo-implementation follows.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Vendor\Package\Input<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Input\AntiCsrfInterface<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Input\Fieldset<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\CsrfObject<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\UserObject<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> AntiCsrf implements AntiCsrfInterface
+<span class="br0">&#123;</span>
+    <span class="co1">// a user object indicating if the user is authenticated or not</span>
+    <span class="kw2">protected</span> <span class="re0">$user</span><span class="sy0">;</span>
+&nbsp;
+    <span class="co1">// a csrf value generation object</span>
+    <span class="kw2">protected</span> <span class="re0">$csrf</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> __construct<span class="br0">&#40;</span>UserObject <span class="re0">$user</span><span class="sy0">,</span> CsrfObject <span class="re0">$csrf</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">user</span> <span class="sy0">=</span> <span class="re0">$user</span><span class="sy0">;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">csrf</span> <span class="sy0">=</span> <span class="re0">$csrf</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="co1">// implementation of setField(); adds a CSRF token field to the fieldset.</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> setField<span class="br0">&#40;</span>Fieldset <span class="re0">$fieldset</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="kw1">if</span> <span class="br0">&#40;</span><span class="sy0">!</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">user</span><span class="sy0">-&gt;</span><span class="me1">isAuthenticated</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+            <span class="co1">// user is not authenticated so CSRF cannot occur</span>
+            <span class="kw1">return</span><span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+&nbsp;
+        <span class="co1">// user is authenticated, so add a CSRF token</span>
+        <span class="re0">$fieldset</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'__csrf_token'</span><span class="sy0">,</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">csrf</span><span class="sy0">-&gt;</span><span class="me1">getValue</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="co1">// implementation of isValid().  return true if CSRF token is present</span>
+    <span class="co1">// and of the correct value, or return false if not.</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> isValid<span class="br0">&#40;</span><span class="kw3">array</span> <span class="re0">$data</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="kw1">if</span> <span class="br0">&#40;</span><span class="sy0">!</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">user</span><span class="sy0">-&gt;</span><span class="me1">isAuthenticated</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+            <span class="co1">// user is not authenticated so CSRF cannot occur</span>
+            <span class="kw1">return</span> <span class="kw4">true</span><span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+&nbsp;
+        <span class="co1">// user is authenticated, so check to see if input has a CSRF token</span>
+        <span class="co1">// of the correct value</span>
+        <span class="kw1">return</span> <span class="kw3">isset</span><span class="br0">&#40;</span><span class="re0">$data</span><span class="br0">&#91;</span><span class="st_h">'__csrf_token'</span><span class="br0">&#93;</span><span class="br0">&#41;</span>
+            <span class="sy0">&amp;&amp;</span> <span class="re0">$data</span><span class="br0">&#91;</span><span class="st_h">'__csrf_token'</span><span class="br0">&#93;</span> <span class="sy0">==</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">csrf</span><span class="sy0">-&gt;</span><span class="me1">getValue</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<p>We can then pass an instance of the implementation into our form using the
+<code>setAntiCsrf()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">use</span> Aura\Input\Form<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Input\Builder<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Input\Filter<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\Input\AntiCsrf<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\UserObject<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\CsrfObject<span class="sy0">;</span>
+&nbsp;
+<span class="re0">$form</span> <span class="sy0">=</span> <span class="kw2">new</span> Form<span class="br0">&#40;</span><span class="kw2">new</span> Builder<span class="sy0">,</span> <span class="kw2">new</span> Filter<span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$anti_csrf</span> <span class="sy0">=</span> <span class="kw2">new</span> AntiCsrf<span class="br0">&#40;</span><span class="kw2">new</span> UserObject<span class="sy0">,</span> <span class="kw2">new</span> CsrfObject<span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setAntiCsrf</span><span class="br0">&#40;</span><span class="re0">$anti_csrf</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>Calling <code>setAntiCsrf()</code> adds a CSRF field to the form.</p>
+
+<p>When we call <code>fill()</code> on the form, it will check the CSRF value in the data
+to make sure it is correct.  If not, the form will not fill in the data, and
+throw an exception and will not fill in the data.</p>
+
+<h2 id="providing-hints-to-the-view-layer">9.3 Providing "Hints" To The View Layer</h2>
+
+<p>The Aura.Input package only describes the user inputs and their values. It
+does not render forms or fields; that task is for the view layer. However,
+Aura.Input does allow for "hints" that the view layer can use for rendering.</p>
+
+<p>When defining a field, we can set the type as the second parameter to the
+<code>setField()</code> method. This can be an HTML input type, an HTML tag name, a
+custom name that the view layer recognizes, or anything else; recall that
+these are only hints for the view, and are not strict. In addition, we can use
+fluent methods to set attributes and options on the field.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// hint the view layer to treat the first_name field as a text input,</span>
+<span class="co1">// with size and maxlength attributes</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'first_name'</span><span class="sy0">,</span> <span class="st_h">'text'</span><span class="br0">&#41;</span>
+     <span class="sy0">-&gt;</span><span class="me1">setAttribs</span><span class="br0">&#40;</span><span class="kw3">array</span><span class="br0">&#40;</span>
+        <span class="st_h">'size'</span> <span class="sy0">=&gt;</span> <span class="nu0">20</span><span class="sy0">,</span>
+        <span class="st_h">'maxlength'</span> <span class="sy0">=&gt;</span> <span class="nu0">20</span><span class="sy0">,</span>
+     <span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// hint the view layer to treat the state field as a select, with a </span>
+<span class="co1">// particular set of options (the keys are the option values, and the values</span>
+<span class="co1">// are the displayed text)</span>
+<span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'state'</span><span class="sy0">,</span> <span class="st_h">'select'</span><span class="br0">&#41;</span>
+     <span class="sy0">-&gt;</span><span class="me1">setOptions</span><span class="br0">&#40;</span><span class="kw3">array</span><span class="br0">&#40;</span>
+        <span class="st_h">'AL'</span> <span class="sy0">=&gt;</span> <span class="st_h">'Alabama'</span><span class="sy0">,</span>
+        <span class="st_h">'AK'</span> <span class="sy0">=&gt;</span> <span class="st_h">'Alaska'</span><span class="sy0">,</span>
+        <span class="st_h">'AZ'</span> <span class="sy0">=&gt;</span> <span class="st_h">'Arizona'</span><span class="sy0">,</span>
+        <span class="st_h">'AR'</span> <span class="sy0">=&gt;</span> <span class="st_h">'Arkansas'</span><span class="sy0">,</span>
+        <span class="co1">// ...</span>
+     <span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>In our view layer, we can extract the hints for a field using the <code>get()</code>
+method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get the hints for the state field</span>
+<span class="re0">$hints</span> <span class="sy0">=</span> <span class="re0">$form</span><span class="sy0">-&gt;</span><span class="me1">get</span><span class="br0">&#40;</span><span class="st_h">'state'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// the hints array looks like this:</span>
+<span class="co1">// $hints = array(</span>
+<span class="co1">//     'type' =&gt; 'select',      # the input type</span>
+<span class="co1">//     'name' =&gt; 'state',       # the input name</span>
+<span class="co1">//     'attribs' =&gt; array(           # attributes as key-value pairs</span>
+<span class="co1">//         // ...</span>
+<span class="co1">//     ),</span>
+<span class="co1">//     'options' =&gt; array(           # options as key-value pairs</span>
+<span class="co1">//         'AL' =&gt; 'Alabama',</span>
+<span class="co1">//         'AZ' =&gt; 'Arizona',</span>
+<span class="co1">//         // ...</span>
+<span class="co1">//     ),</span>
+<span class="co1">//     'value' =&gt; '',           # the current value of the input</span>
+<span class="co1">// );</span></pre>
+</div>
+
+<p>The <a href="http://github.com/auraphp/Aura.View">Aura.View</a> package comes with a
+series of helpers that can translate the hints array to HTML.</p>
+
+<h2 id="passing-options-into-forms">9.4 Passing Options Into Forms</h2>
+
+<p>Frequently, the application using the inputs will have a standard set of
+options used across all forms and filters. It would be inconvenient to have
+to duplicate those standard options for each different form, so Aura.Input
+allows us to pass in any object at all as a container for application-wide
+options.  We can then use those options for building the inputs.</p>
+
+<p>For example, we would construct our <code>ContactForm</code> with an arbitrary options
+object ...</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">use</span> Aura\Input\Builder<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Input\Filter<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\ContactForm<span class="sy0">;</span>
+<span class="kw2">use</span> Vendor\Package\Options<span class="sy0">;</span>
+&nbsp;
+<span class="re0">$options</span> <span class="sy0">=</span> <span class="kw2">new</span> Options<span class="sy0">;</span>
+<span class="re0">$form</span> <span class="sy0">=</span> <span class="kw2">new</span> ContactForm<span class="br0">&#40;</span><span class="kw2">new</span> Builder<span class="sy0">,</span> <span class="kw2">new</span> Filter<span class="sy0">,</span> <span class="re0">$options</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>... and then use it in the <code>init()</code> method:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Vendor\Package<span class="sy0">;</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">use Aura\Input\Form;</pre>
+</div>
+
+<div class="code code">
+<pre class="code">class ContactForm extends Form
+{
+    protected function init()
+    {
+        // the options object injected via constructor
+        $options = $this-&gt;getOptions();
+&nbsp;
+        // set input fields
+        $this-&gt;setField('state', 'select')
+             -&gt;setOptions($options-&gt;getStates());
+&nbsp;
+        // set input filters
+        $filter = $this-&gt;getFilter();
+        $filter-&gt;setRule(
+            'state',
+            'State not recognized.',
+            function ($value) use ($options) {
+                return in_array($value, $options-&gt;getStates());
+            }
+        );
+    }
+}</pre>
+</div>
+
+<h2 id="creating-reusable-fieldsets">9.5 Creating Reusable Fieldsets</h2>
+
+<p>TBD.</p>
+
+<h2 id="using-fieldset-collections">9.6 Using Fieldset Collections</h2>
+
+<p>TBD.</p>
+
+    </div>
+
+    <div class="span3">
+        <div class="item local_toc">
+            <h3>Table of contents</h3>
+
+            <ul class="unstyled">
+                                                <li class="level-2">
+                        <span>9.1</span>
+                        <a class="internal" href="./91.html#instantiation">Instantiation</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.2</span>
+                        <a class="internal" href="./91.html#setting-input-fields-on-the-form">Setting Input Fields On The Form</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.3</span>
+                        <a class="internal" href="./91.html#setting-filters-on-the-form">Setting Filters On The Form</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.4</span>
+                        <a class="internal" href="./91.html#populating-and-validating-user-input">Populating and Validating User Input</a>
+                    </li>
+                                    <li class="level-1">
+                        <span></span>
+                        <a class="internal" href="./91.html#advanced-usage">Advanced Usage</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.1</span>
+                        <a class="internal" href="./91.html#self-initializing-forms">Self-Initializing Forms</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.2</span>
+                        <a class="internal" href="./91.html#applying-csrf-protections">Applying CSRF Protections</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.3</span>
+                        <a class="internal" href="./91.html#providing-hints-to-the-view-layer">Providing "Hints" To The View Layer</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.4</span>
+                        <a class="internal" href="./91.html#passing-options-into-forms">Passing Options Into Forms</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.5</span>
+                        <a class="internal" href="./91.html#creating-reusable-fieldsets">Creating Reusable Fieldsets</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>9.6</span>
+                        <a class="internal" href="./91.html#using-fieldset-collections">Using Fieldset Collections</a>
+                    </li>
+                                    <li class="level-1">
+                        <span></span>
+                        <a class="internal" href="./91.html#forms">Forms</a>
+                    </li>
+                                        </ul>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

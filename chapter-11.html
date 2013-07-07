@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="author" content="Hari KT, Paul M Jones" />
+    <meta name="date" content="07/07/2013"/>
+    <meta name="generator" content="easybook 5.0-DEV"/>
+
+    <title>Connecting to Database | The complete reference for Aura</title>
+
+    <link rel="stylesheet" href="./css/easybook.css" />
+
+</head>
+
+<body class="item chapter">
+<div class="container">
+<div class="menu">
+    <div class="row">
+        <h1 class="span9"><a href="./index.html">The complete reference for Aura</a></h1>
+        <p class="span3">
+                        <a href="./chapter-10.html"><span>&larr;</span> Previous</a>
+            
+                        <a href="./chapter-12.html">Next <span>&rarr;</span></a>
+                    </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span9">
+        <h1 id="connecting-to-database"><span>Chapter 11</span> Connecting to Database</h1>
+        <p>Before you read this chapter, please familarize yourself reading previous 
+chapters on Dependency Injection container, Generic Factory.</p>
+
+<p>Aura framework doesn't force you to use Aura.Sql and how you need to work
+on the models. It is your taste whether you need to work with Propel, 
+Doctrine or native PDO itself.</p>
+
+<p>In this we are going to make use of Aura.Sql to connect to the database.</p>
+
+<h2 id="database-connection">11.1 Database Connection</h2>
+
+<p>Let us create an AbstractModel.php file with contents and save in folder
+<code>package/Example.Package/src/Example/Package/Model</code></p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Example\Package\Model<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Sql\ConnectionLocator<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">abstract</span> <span class="kw2">class</span> AbstractModel
+<span class="br0">&#123;</span>
+    <span class="co4">/**
+     * 
+     * The connections to connect to database
+     * 
+     * @var ConnectionLocator
+     * 
+     */</span>
+    <span class="kw2">protected</span> <span class="re0">$connection_locator</span><span class="sy0">;</span>
+&nbsp;
+    <span class="co4">/**
+     * 
+     * Constructor
+     * 
+     * @param ConnectionLocator $connection_locator Set the db connection
+     * 
+     */</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> __construct<span class="br0">&#40;</span>ConnectionLocator <span class="re0">$connection_locator</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">connection_locator</span> <span class="sy0">=</span> <span class="re0">$connection_locator</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="co4">/**
+     * 
+     * Returns an \Aura\Sql\Connection\AbstractConnection object
+     * 
+     * @param string $type The type of connection. master / slave
+     * 
+     * @param string $name The name of the connection for master / slave
+     * 
+     * @return \Aura\Sql\Connection\AbstractConnection
+     * 
+     */</span>
+    <span class="kw2">public</span> <span class="kw2">function</span> getConnection<span class="br0">&#40;</span><span class="re0">$type</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="sy0">,</span> <span class="re0">$name</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="kw1">switch</span> <span class="br0">&#40;</span><span class="re0">$type</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+            <span class="kw1">case</span> <span class="st_h">'master'</span><span class="sy0">:</span>
+                <span class="re0">$connection</span> <span class="sy0">=</span> <span class="st_h">'getMaster'</span><span class="sy0">;</span>
+                <span class="kw1">break</span><span class="sy0">;</span>
+            <span class="kw1">case</span> <span class="st_h">'slave'</span><span class="sy0">:</span>
+                <span class="re0">$connection</span> <span class="sy0">=</span> <span class="st_h">'getSlave'</span><span class="sy0">;</span>
+                <span class="kw1">break</span><span class="sy0">;</span>
+            <span class="kw1">default</span><span class="sy0">:</span>
+                <span class="re0">$connection</span> <span class="sy0">=</span> <span class="st_h">'getDefault'</span><span class="sy0">;</span>
+                <span class="kw1">break</span><span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+        <span class="kw1">return</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">connection_locator</span><span class="sy0">-&gt;</span><span class="re0">$connection</span><span class="br0">&#40;</span><span class="re0">$name</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h2 id="creating-your-models">11.2 Creating your models</h2>
+
+<p>If your models need database connection, you can extend the class with
+<code>Example\Package\Model\AbstractModel</code> and use the <code>getConnection()</code> method
+and query database.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Example\Package\Model<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Example\Package\Model\AbstractModel<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> User <span class="kw2">extends</span> AbstractModel
+<span class="br0">&#123;</span>
+    <span class="kw2">protected</span> <span class="re0">$table</span> <span class="sy0">=</span> <span class="st_h">'user'</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> insert<span class="br0">&#40;</span><span class="re0">$bind</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$connection</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getConnection</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="co1">// create a new Insert object</span>
+        <span class="re0">$insert</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newInsert</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="co1">// INSERT INTO foo (name, email, username, password, created_at) </span>
+        <span class="co1">// VALUES (:name, :email, :username, NOW());</span>
+        <span class="re0">$insert</span><span class="sy0">-&gt;</span><span class="me1">into</span><span class="br0">&#40;</span><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#41;</span>
+               <span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="br0">&#91;</span><span class="st_h">'name'</span><span class="sy0">,</span> <span class="st_h">'email'</span><span class="sy0">,</span> <span class="st_h">'username'</span><span class="br0">&#93;</span><span class="br0">&#41;</span>
+               <span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'created_at'</span><span class="sy0">,</span> <span class="st_h">'NOW()'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$insert</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">return</span> <span class="re0">$stmt</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> update<span class="br0">&#40;</span><span class="re0">$bind</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$connection</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getConnection</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="co1">// create a new Update object</span>
+        <span class="re0">$update</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newUpdate</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="re0">$cols</span> <span class="sy0">=</span> <span class="br0">&#91;</span><span class="st_h">'name'</span><span class="sy0">,</span> <span class="st_h">'email'</span><span class="sy0">,</span> <span class="st_h">'username'</span><span class="br0">&#93;</span><span class="sy0">;</span>
+        <span class="re0">$update</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#40;</span><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#41;</span>
+               <span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="re0">$cols</span><span class="br0">&#41;</span>
+               <span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'updated_at'</span><span class="sy0">,</span> <span class="st_h">'NOW()'</span><span class="br0">&#41;</span>
+               <span class="sy0">-&gt;</span><span class="me1">where</span><span class="br0">&#40;</span><span class="st_h">'id = :id'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$update</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">return</span> <span class="re0">$stmt</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h2 id="configuration-4">11.3 Configuration</h2>
+
+<p>You can keep the connection configuration information in the 
+<code>{$system}/config/default.php</code>.</p>
+
+<div class="code php">
+<pre class="php"><span class="co1">// database</span>
+<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'connection_factory'</span><span class="sy0">,</span> <span class="kw2">function</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw2">use</span> <span class="br0">&#40;</span><span class="re0">$di</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">return</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="st_h">'Aura\Sql\ConnectionFactory'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'connection_locator'</span><span class="sy0">,</span> <span class="kw2">function</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw2">use</span> <span class="br0">&#40;</span><span class="re0">$di</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">return</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="st_h">'Aura\Sql\ConnectionLocator'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// default params for the AbstractModel class</span>
+<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Example\Package\Model\AbstractModel'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'connection_locator'</span> <span class="sy0">=&gt;</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">lazyGet</span><span class="br0">&#40;</span><span class="st_h">'connection_locator'</span><span class="br0">&#41;</span>
+<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Aura\Sql\ConnectionLocator'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'connection_factory'</span> <span class="sy0">=&gt;</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">lazyGet</span><span class="br0">&#40;</span><span class="st_h">'connection_factory'</span><span class="br0">&#41;</span><span class="sy0">,</span>
+    <span class="st_h">'default'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span>
+        <span class="st_h">'adapter'</span> <span class="sy0">=&gt;</span> <span class="st_h">'mysql'</span><span class="sy0">,</span>
+        <span class="st_h">'dsn'</span> <span class="sy0">=&gt;</span> <span class="st_h">'host=db-host;dbname=db-name'</span><span class="sy0">,</span>
+        <span class="st_h">'username'</span> <span class="sy0">=&gt;</span> <span class="st_h">'db-username'</span><span class="sy0">,</span>
+        <span class="st_h">'password'</span> <span class="sy0">=&gt;</span> <span class="st_h">'dbpassword'</span><span class="sy0">,</span>
+        <span class="st_h">'options'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="br0">&#93;</span>
+    <span class="br0">&#93;</span><span class="sy0">,</span>
+    <span class="st_h">'masters'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="br0">&#93;</span><span class="sy0">,</span>
+    <span class="st_h">'slaves'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="br0">&#93;</span>
+<span class="br0">&#93;</span><span class="sy0">;</span></pre>
+</div>
+
+<blockquote>
+  <p>Change the <code>adapter</code>, <code>db-host</code>, <code>db-name</code>, <code>db-username</code>, <code>db-password</code>
+  according to yours.</p>
+</blockquote>
+
+<p>And we need to map the <code>Example\Package\GenericFactory</code> in-order to create 
+model objects from the controller. Save the below contents in the 
+<code>config/default.php</code> of your package or in the <code>$system</code>.</p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Example\Package\GenericFactory'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'map'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'user'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newFactory</span><span class="br0">&#40;</span><span class="st_h">'Example\Package\Model\User'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="co1">// add more like this</span>
+<span class="co1">// $di-&gt;params['Example\Package\GenericFactory']['map'][&lt;name&gt;] = $di-&gt;newFactory(&lt;the-class-name&gt;);</span></pre>
+</div>
+
+<p>Now if you have the GenericFactory injected to the controller as we 
+did in chapter6, then we can call</p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">factory</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="sy0">&lt;</span>name<span class="sy0">&gt;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getFactory</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="sy0">&lt;</span>name<span class="sy0">&gt;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="co1">// $this-&gt;factory-&gt;newInstance('user');</span></pre>
+</div>
+
+<p>That's it for now!.</p>
+
+    </div>
+
+    <div class="span3">
+        <div class="item local_toc">
+            <h3>Table of contents</h3>
+
+            <ul class="unstyled">
+                                                <li class="level-1">
+                        <span></span>
+                        <a class="internal" href="./chapter-11.html#connecting-to-database">Connecting to Database</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.1</span>
+                        <a class="internal" href="./chapter-11.html#database-connection">Database Connection</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.2</span>
+                        <a class="internal" href="./chapter-11.html#creating-your-models">Creating your models</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.3</span>
+                        <a class="internal" href="./chapter-11.html#configuration-4">Configuration</a>
+                    </li>
+                                        </ul>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
