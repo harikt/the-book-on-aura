@@ -3,10 +3,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="Hari KT, Paul M Jones" />
-    <meta name="date" content="07/07/2013"/>
+    <meta name="date" content="07/08/2013"/>
     <meta name="generator" content="easybook 5.0-DEV"/>
 
-    <title>Connecting to Database | The complete reference for Aura</title>
+    <title>Aura SQL | The complete reference for Aura</title>
 
     <link rel="stylesheet" href="./css/easybook.css" />
 
@@ -27,188 +27,388 @@
 
 <div class="row">
     <div class="span9">
-        <h1 id="connecting-to-database"><span>Chapter 11</span> Connecting to Database</h1>
-        <p>Before you read this chapter, please familarize yourself reading previous 
-chapters on Dependency Injection container, Generic Factory.</p>
+        <h1 id="aura-sql"><span>Chapter 11</span> Aura SQL</h1>
+        <p>The Aura SQL package provides connections to connect to and query against SQL
+data sources such as MySQL, PostgreSQL, and Sqlite. The connections are mostly
+wrappers around <a href="http://php.net/PDO">PDO</a> connections.</p>
 
-<p>Aura framework doesn't force you to use Aura.Sql and how you need to work
-on the models. It is your taste whether you need to work with Propel, 
-Doctrine or native PDO itself.</p>
+<p>Aura SQL comes with four connection adapters: <code>'mysql'</code> for MySQL, <code>'pgsql'</code>
+for PostgreSQL, <code>'sqlite'</code> for SQLite3, and <code>'sqlsrv'</code> for Microsoft SQL
+Server.</p>
 
-<p>In this we are going to make use of Aura.Sql to connect to the database.</p>
-
-<h2 id="database-connection">11.1 Database Connection</h2>
-
-<p>Let us create an AbstractModel.php file with contents and save in folder
-<code>package/Example.Package/src/Example/Package/Model</code></p>
-
-<div class="code php">
-<pre class="php"><span class="kw2">&lt;?php</span>
-<span class="kw2">namespace</span> Example\Package\Model<span class="sy0">;</span>
-&nbsp;
-<span class="kw2">use</span> Aura\Sql\ConnectionLocator<span class="sy0">;</span>
-&nbsp;
-<span class="kw2">abstract</span> <span class="kw2">class</span> AbstractModel
-<span class="br0">&#123;</span>
-    <span class="co4">/**
-     * 
-     * The connections to connect to database
-     * 
-     * @var ConnectionLocator
-     * 
-     */</span>
-    <span class="kw2">protected</span> <span class="re0">$connection_locator</span><span class="sy0">;</span>
-&nbsp;
-    <span class="co4">/**
-     * 
-     * Constructor
-     * 
-     * @param ConnectionLocator $connection_locator Set the db connection
-     * 
-     */</span>
-    <span class="kw2">public</span> <span class="kw2">function</span> __construct<span class="br0">&#40;</span>ConnectionLocator <span class="re0">$connection_locator</span><span class="br0">&#41;</span>
-    <span class="br0">&#123;</span>
-        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">connection_locator</span> <span class="sy0">=</span> <span class="re0">$connection_locator</span><span class="sy0">;</span>
-    <span class="br0">&#125;</span>
-&nbsp;
-    <span class="co4">/**
-     * 
-     * Returns an \Aura\Sql\Connection\AbstractConnection object
-     * 
-     * @param string $type The type of connection. master / slave
-     * 
-     * @param string $name The name of the connection for master / slave
-     * 
-     * @return \Aura\Sql\Connection\AbstractConnection
-     * 
-     */</span>
-    <span class="kw2">public</span> <span class="kw2">function</span> getConnection<span class="br0">&#40;</span><span class="re0">$type</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="sy0">,</span> <span class="re0">$name</span> <span class="sy0">=</span> <span class="kw4">null</span><span class="br0">&#41;</span>
-    <span class="br0">&#123;</span>
-        <span class="kw1">switch</span> <span class="br0">&#40;</span><span class="re0">$type</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
-            <span class="kw1">case</span> <span class="st_h">'master'</span><span class="sy0">:</span>
-                <span class="re0">$connection</span> <span class="sy0">=</span> <span class="st_h">'getMaster'</span><span class="sy0">;</span>
-                <span class="kw1">break</span><span class="sy0">;</span>
-            <span class="kw1">case</span> <span class="st_h">'slave'</span><span class="sy0">:</span>
-                <span class="re0">$connection</span> <span class="sy0">=</span> <span class="st_h">'getSlave'</span><span class="sy0">;</span>
-                <span class="kw1">break</span><span class="sy0">;</span>
-            <span class="kw1">default</span><span class="sy0">:</span>
-                <span class="re0">$connection</span> <span class="sy0">=</span> <span class="st_h">'getDefault'</span><span class="sy0">;</span>
-                <span class="kw1">break</span><span class="sy0">;</span>
-        <span class="br0">&#125;</span>
-        <span class="kw1">return</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">connection_locator</span><span class="sy0">-&gt;</span><span class="re0">$connection</span><span class="br0">&#40;</span><span class="re0">$name</span><span class="br0">&#41;</span><span class="sy0">;</span>
-    <span class="br0">&#125;</span>
-<span class="br0">&#125;</span></pre>
-</div>
-
-<h2 id="creating-your-models">11.2 Creating your models</h2>
-
-<p>If your models need database connection, you can extend the class with
-<code>Example\Package\Model\AbstractModel</code> and use the <code>getConnection()</code> method
-and query database.</p>
-
-<div class="code php">
-<pre class="php"><span class="kw2">&lt;?php</span>
-<span class="kw2">namespace</span> Example\Package\Model<span class="sy0">;</span>
-&nbsp;
-<span class="kw2">use</span> Example\Package\Model\AbstractModel<span class="sy0">;</span>
-&nbsp;
-<span class="kw2">class</span> User <span class="kw2">extends</span> AbstractModel
-<span class="br0">&#123;</span>
-    <span class="kw2">protected</span> <span class="re0">$table</span> <span class="sy0">=</span> <span class="st_h">'user'</span><span class="sy0">;</span>
-&nbsp;
-    <span class="kw2">public</span> <span class="kw2">function</span> insert<span class="br0">&#40;</span><span class="re0">$bind</span><span class="br0">&#41;</span>
-    <span class="br0">&#123;</span>
-        <span class="re0">$connection</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getConnection</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-        <span class="co1">// create a new Insert object</span>
-        <span class="re0">$insert</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newInsert</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp;
-        <span class="co1">// INSERT INTO foo (name, email, username, password, created_at) </span>
-        <span class="co1">// VALUES (:name, :email, :username, NOW());</span>
-        <span class="re0">$insert</span><span class="sy0">-&gt;</span><span class="me1">into</span><span class="br0">&#40;</span><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#41;</span>
-               <span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="br0">&#91;</span><span class="st_h">'name'</span><span class="sy0">,</span> <span class="st_h">'email'</span><span class="sy0">,</span> <span class="st_h">'username'</span><span class="br0">&#93;</span><span class="br0">&#41;</span>
-               <span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'created_at'</span><span class="sy0">,</span> <span class="st_h">'NOW()'</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp;
-        <span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$insert</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span>
-        <span class="kw1">return</span> <span class="re0">$stmt</span><span class="sy0">;</span>
-    <span class="br0">&#125;</span>
-&nbsp;
-    <span class="kw2">public</span> <span class="kw2">function</span> update<span class="br0">&#40;</span><span class="re0">$bind</span><span class="br0">&#41;</span>
-    <span class="br0">&#123;</span>
-        <span class="re0">$connection</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getConnection</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-        <span class="co1">// create a new Update object</span>
-        <span class="re0">$update</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newUpdate</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp;
-        <span class="re0">$cols</span> <span class="sy0">=</span> <span class="br0">&#91;</span><span class="st_h">'name'</span><span class="sy0">,</span> <span class="st_h">'email'</span><span class="sy0">,</span> <span class="st_h">'username'</span><span class="br0">&#93;</span><span class="sy0">;</span>
-        <span class="re0">$update</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#40;</span><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#41;</span>
-               <span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="re0">$cols</span><span class="br0">&#41;</span>
-               <span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'updated_at'</span><span class="sy0">,</span> <span class="st_h">'NOW()'</span><span class="br0">&#41;</span>
-               <span class="sy0">-&gt;</span><span class="me1">where</span><span class="br0">&#40;</span><span class="st_h">'id = :id'</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp;
-        <span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$update</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span>
-        <span class="kw1">return</span> <span class="re0">$stmt</span><span class="sy0">;</span>
-    <span class="br0">&#125;</span>
-<span class="br0">&#125;</span></pre>
-</div>
-
-<h2 id="configuration-4">11.3 Configuration</h2>
-
-<p>You can keep the connection configuration information in the 
-<code>{$system}/config/default.php</code>.</p>
-
-<div class="code php">
-<pre class="php"><span class="co1">// database</span>
-<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'connection_factory'</span><span class="sy0">,</span> <span class="kw2">function</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw2">use</span> <span class="br0">&#40;</span><span class="re0">$di</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
-    <span class="kw1">return</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="st_h">'Aura\Sql\ConnectionFactory'</span><span class="br0">&#41;</span><span class="sy0">;</span>
-<span class="br0">&#125;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp;
-<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'connection_locator'</span><span class="sy0">,</span> <span class="kw2">function</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw2">use</span> <span class="br0">&#40;</span><span class="re0">$di</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
-    <span class="kw1">return</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="st_h">'Aura\Sql\ConnectionLocator'</span><span class="br0">&#41;</span><span class="sy0">;</span>
-<span class="br0">&#125;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp;
-<span class="co1">// default params for the AbstractModel class</span>
-<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Example\Package\Model\AbstractModel'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
-    <span class="st_h">'connection_locator'</span> <span class="sy0">=&gt;</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">lazyGet</span><span class="br0">&#40;</span><span class="st_h">'connection_locator'</span><span class="br0">&#41;</span>
-<span class="br0">&#93;</span><span class="sy0">;</span>
-&nbsp;
-<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Aura\Sql\ConnectionLocator'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
-    <span class="st_h">'connection_factory'</span> <span class="sy0">=&gt;</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">lazyGet</span><span class="br0">&#40;</span><span class="st_h">'connection_factory'</span><span class="br0">&#41;</span><span class="sy0">,</span>
-    <span class="st_h">'default'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span>
-        <span class="st_h">'adapter'</span> <span class="sy0">=&gt;</span> <span class="st_h">'mysql'</span><span class="sy0">,</span>
-        <span class="st_h">'dsn'</span> <span class="sy0">=&gt;</span> <span class="st_h">'host=db-host;dbname=db-name'</span><span class="sy0">,</span>
-        <span class="st_h">'username'</span> <span class="sy0">=&gt;</span> <span class="st_h">'db-username'</span><span class="sy0">,</span>
-        <span class="st_h">'password'</span> <span class="sy0">=&gt;</span> <span class="st_h">'dbpassword'</span><span class="sy0">,</span>
-        <span class="st_h">'options'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="br0">&#93;</span>
-    <span class="br0">&#93;</span><span class="sy0">,</span>
-    <span class="st_h">'masters'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="br0">&#93;</span><span class="sy0">,</span>
-    <span class="st_h">'slaves'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="br0">&#93;</span>
-<span class="br0">&#93;</span><span class="sy0">;</span></pre>
-</div>
+<h2 id="instantiation">11.1 Instantiation</h2>
 
 <blockquote>
-  <p>Change the <code>adapter</code>, <code>db-host</code>, <code>db-name</code>, <code>db-username</code>, <code>db-password</code>
-  according to yours.</p>
+  <p>If you are using Aura.Sql with dependency injection, you can skip to 
+  next topic connecting.</p>
 </blockquote>
 
-<p>And we need to map the <code>Example\Package\GenericFactory</code> in-order to create 
-model objects from the controller. Save the below contents in the 
-<code>config/default.php</code> of your package or in the <code>$system</code>.</p>
+<p>The easiest way to get started is to use the <code>scripts/instance.php</code> script to
+get a <code>ConnectionFactory</code> and create your connection through it:</p>
 
 <div class="code php">
-<pre class="php"><span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Example\Package\GenericFactory'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'map'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'user'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newFactory</span><span class="br0">&#40;</span><span class="st_h">'Example\Package\Model\User'</span><span class="br0">&#41;</span><span class="sy0">;</span>
-<span class="co1">// add more like this</span>
-<span class="co1">// $di-&gt;params['Example\Package\GenericFactory']['map'][&lt;name&gt;] = $di-&gt;newFactory(&lt;the-class-name&gt;);</span></pre>
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$connection_factory</span> <span class="sy0">=</span> <span class="kw1">include</span> <span class="st_h">'/path/to/Aura.Sql/scripts/instance.php'</span><span class="sy0">;</span>
+<span class="re0">$connection</span> <span class="sy0">=</span> <span class="re0">$connection_factory</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span>
+&nbsp;
+    <span class="co1">// adapter name</span>
+    <span class="st_h">'mysql'</span><span class="sy0">,</span>
+&nbsp;
+    <span class="co1">// DSN elements for PDO; this can also be</span>
+    <span class="co1">// an array of key-value pairs</span>
+    <span class="st_h">'host=localhost;dbname=database_name'</span><span class="sy0">,</span>
+&nbsp;
+    <span class="co1">// username for the connection</span>
+    <span class="st_h">'username'</span><span class="sy0">,</span>
+&nbsp;
+    <span class="co1">// password for the connection</span>
+    <span class="st_h">'password'</span>
+<span class="br0">&#41;</span><span class="sy0">;</span></pre>
 </div>
 
-<p>Now if you have the GenericFactory injected to the controller as we 
-did in chapter6, then we can call</p>
+<p>Alternatively, you can add <code>'/path/to/Aura.Sql/src'</code> to your autoloader and
+build an connection factory manually:</p>
+
+<pre><code>[php]
+&lt;?php
+use Aura\Sql\ConnectionFactory;
+$connection_factory = new ConnectionFactory;
+$connection = $connection_factory-&gt;newInstance(...);
+</code></pre>
+
+<div class="code code">
+<pre class="code">&nbsp;</pre>
+</div>
+
+<p>Aura SQL comes with four connection adapters: <code>'mysql'</code> for MySQL, <code>'pgsql'</code>
+for PostgreSQL, <code>'sqlite'</code> for SQLite3, and <code>'sqlsrv'</code> for Microsoft SQL
+Server.</p>
+
+<h2 id="connecting">11.2 Connecting</h2>
+
+<p>The connection will lazy-connect to the database the first time you issue a
+query of any sort. This means you can create the connection object, and if you
+never issue a query, it will never connect to the database.</p>
+
+<p>You can connect manually by issuing <code>connect()</code>:</p>
 
 <div class="code php">
-<pre class="php"><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">factory</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="sy0">&lt;</span>name<span class="sy0">&gt;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-<span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getFactory</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="sy0">&lt;</span>name<span class="sy0">&gt;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-<span class="co1">// $this-&gt;factory-&gt;newInstance('user');</span></pre>
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">connect</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
 </div>
 
-<p>That's it for now!.</p>
+<h2 id="fetching-results">11.3 Fetching Results</h2>
+
+<p>Once you have a connection, you can begin to fetch results from the database.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// returns all rows</span>
+<span class="re0">$result</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchAll</span><span class="br0">&#40;</span><span class="st_h">'SELECT * FROM foo'</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>You can fetch results using these methods:</p>
+
+<ul>
+<li><p><code>fetchAll()</code> returns a sequential array of all rows. The rows themselves are
+associative arrays where the keys are the column names.</p></li>
+<li><p><code>fetchAssoc()</code> returns an associative array of all rows where the key is the
+first column.</p></li>
+<li><p><code>fetchCol()</code> returns a sequential array of all values in the first column.</p></li>
+<li><p><code>fetchOne()</code> returns the first row as an associative array where the keys
+are the column names.</p></li>
+<li><p><code>fetchPairs()</code> returns an associative array where each key is the first
+column and each value is the second column.</p></li>
+<li><p><code>fetchValue()</code> returns the value of the first row in the first column.</p></li>
+</ul>
+
+<h2 id="preventing-sql-injection">11.4 Preventing SQL Injection</h2>
+
+<p>Usually you will need to incorporate user-provided data into the query. This
+means you should quote all values interpolated into the query text as a
+security measure to <a href="http://bobby-tables.com/">prevent SQL injection</a>.</p>
+
+<p>Although Aura SQL provides quoting methods, you should instead use value
+binding into prepared statements. To do so, put named placeholders in the
+query text, then pass an array of values to bind to the placeholders:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// the text of the query</span>
+<span class="re0">$text</span> <span class="sy0">=</span> <span class="st_h">'SELECT * FROM foo WHERE id = :id'</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// values to bind to query placeholders</span>
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'id'</span> <span class="sy0">=&gt;</span> <span class="nu0">1</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// returns one row; the data has been parameterized</span>
+<span class="co1">// into a prepared statement for you</span>
+<span class="re0">$result</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchOne</span><span class="br0">&#40;</span><span class="re0">$text</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>Aura SQL recognizes array values and quotes them as comma-separated lists:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// the text of the query</span>
+<span class="re0">$text</span> <span class="sy0">=</span> <span class="st_h">'SELECT * FROM foo WHERE id = :id AND bar IN(:bar_list)'</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// values to bind to query placeholders</span>
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'id'</span> <span class="sy0">=&gt;</span> <span class="nu0">1</span><span class="sy0">,</span>
+    <span class="st_h">'bar_list'</span> <span class="sy0">=&gt;</span> <span class="br0">&#91;</span><span class="st_h">'a'</span><span class="sy0">,</span> <span class="st_h">'b'</span><span class="sy0">,</span> <span class="st_h">'c'</span><span class="br0">&#93;</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// returns all rows; the query ends up being</span>
+<span class="co1">// &quot;SELECT * FROM foo WHERE id = 1 AND bar IN('a', 'b', 'c')&quot;</span>
+<span class="re0">$result</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchOne</span><span class="br0">&#40;</span><span class="re0">$text</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="query-objects">11.5 Query Objects</h2>
+
+<p>Aura SQL provides four types of query objects so you can write your SQL
+queries in an object-oriented way.</p>
+
+<h2 id="select">11.6 Select</h2>
+
+<p>To get a new <code>Select</code> object, invoke the <code>newSelect()</code> method on an connection.
+You can then modify the <code>Select</code> object and pass it to the <code>query()</code> or
+<code>fetch*()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// create a new Select object</span>
+<span class="re0">$select</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newSelect</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// SELECT * FROM foo WHERE bar &gt; :bar ORDER BY baz</span>
+<span class="re0">$select</span><span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="br0">&#91;</span><span class="st_h">'*'</span><span class="br0">&#93;</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">from</span><span class="br0">&#40;</span><span class="st_h">'foo'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">where</span><span class="br0">&#40;</span><span class="st_h">'bar &gt; :bar'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">orderBy</span><span class="br0">&#40;</span><span class="st_h">'baz'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span><span class="st_h">'bar'</span> <span class="sy0">=&gt;</span> <span class="st_h">'88'</span><span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$list</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchAll</span><span class="br0">&#40;</span><span class="re0">$select</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>The <code>Select</code> object has these methods and more; please read the source code
+for more information.</p>
+
+<ul>
+<li><p><code>distinct()</code>: Set to <code>true</code> for a <code>SELECT DISTINCT</code>.</p></li>
+<li><p><code>cols()</code>: Select these columns.</p></li>
+<li><p><code>from()</code>: Select from these tables.</p></li>
+<li><p><code>join()</code>: Join these tables on specified conditions.</p></li>
+<li><p><code>where()</code>: <code>WHERE</code> these conditions are met (using <code>AND</code>).</p></li>
+<li><p><code>orWhere()</code>: <code>WHERE</code> these conditions are met (using <code>OR</code>).</p></li>
+<li><p><code>groupBy()</code>: <code>GROUP BY</code> these columns.</p></li>
+<li><p><code>having()</code>: <code>HAVING</code> these conditions met (using <code>AND</code>).</p></li>
+<li><p><code>orHaving()</code>: <code>HAVING</code> these conditions met (using <code>OR</code>).</p></li>
+<li><p><code>orderBy()</code>: <code>ORDER BY</code> these columns.</p></li>
+<li><p><code>limit()</code>: <code>LIMIT</code> to this many rows.</p></li>
+<li><p><code>offset()</code>: <code>OFFSET</code> by this many rows.</p></li>
+<li><p><code>union()</code>: <code>UNION</code> with a followup <code>SELECT</code>.</p></li>
+<li><p><code>unionAll()</code>: <code>UNION ALL</code> with a followup <code>SELECT</code>.</p></li>
+</ul>
+
+<h2 id="insert">11.7 Insert</h2>
+
+<p>To get a new <code>Insert</code> object, invoke the <code>newInsert()</code> method on an connection.
+You can then modify the <code>Insert</code> object and pass it to the <code>query()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// create a new Insert object</span>
+<span class="re0">$insert</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newInsert</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// INSERT INTO foo (bar, baz, date) VALUES (:bar, :baz, NOW());</span>
+<span class="re0">$insert</span><span class="sy0">-&gt;</span><span class="me1">into</span><span class="br0">&#40;</span><span class="st_h">'foo'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="br0">&#91;</span><span class="st_h">'bar'</span><span class="sy0">,</span> <span class="st_h">'baz'</span><span class="br0">&#93;</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'date'</span><span class="sy0">,</span> <span class="st_h">'NOW()'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'bar'</span> <span class="sy0">=&gt;</span> <span class="kw4">null</span><span class="sy0">,</span>
+    <span class="st_h">'baz'</span> <span class="sy0">=&gt;</span> <span class="st_h">'zim'</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$insert</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="update">11.8 Update</h2>
+
+<p>To get a new <code>Update</code> object, invoke the <code>newUpdate()</code> method on an connection.
+You can then modify the <code>Update</code> object and pass it to the <code>query()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// create a new Update object</span>
+<span class="re0">$update</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newUpdate</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// UPDATE foo SET bar = :bar, baz = :baz, date = NOW() WHERE zim = :zim OR gir = :gir</span>
+<span class="re0">$update</span><span class="sy0">-&gt;</span><span class="me1">table</span><span class="br0">&#40;</span><span class="st_h">'foo'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">cols</span><span class="br0">&#40;</span><span class="br0">&#91;</span><span class="st_h">'bar'</span><span class="sy0">,</span> <span class="st_h">'baz'</span><span class="br0">&#93;</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">set</span><span class="br0">&#40;</span><span class="st_h">'date'</span><span class="sy0">,</span> <span class="st_h">'NOW()'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">where</span><span class="br0">&#40;</span><span class="st_h">'zim = :zim'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">orWhere</span><span class="br0">&#40;</span><span class="st_h">'gir = :gir'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'bar'</span> <span class="sy0">=&gt;</span> <span class="st_h">'barbar'</span><span class="sy0">,</span>
+    <span class="st_h">'baz'</span> <span class="sy0">=&gt;</span> <span class="nu0">99</span><span class="sy0">,</span>
+    <span class="st_h">'zim'</span> <span class="sy0">=&gt;</span> <span class="st_h">'dib'</span><span class="sy0">,</span>
+    <span class="st_h">'gir'</span> <span class="sy0">=&gt;</span> <span class="st_h">'doom'</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$update</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="delete">11.9 Delete</h2>
+
+<p>To get a new <code>Delete</code> object, invoke the <code>newDelete()</code> method on an connection.
+You can then modify the <code>Delete</code> object and pass it to the <code>query()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// create a new Delete object</span>
+<span class="re0">$delete</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">newDelete</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// DELETE FROM WHERE zim = :zim OR gir = :gir</span>
+<span class="re0">$delete</span><span class="sy0">-&gt;</span><span class="me1">from</span><span class="br0">&#40;</span><span class="st_h">'foo'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">where</span><span class="br0">&#40;</span><span class="st_h">'zim = :zim'</span><span class="br0">&#41;</span>
+       <span class="sy0">-&gt;</span><span class="me1">orWhere</span><span class="br0">&#40;</span><span class="st_h">'gir = :gir'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span>
+    <span class="st_h">'zim'</span> <span class="sy0">=&gt;</span> <span class="st_h">'dib'</span><span class="sy0">,</span>
+    <span class="st_h">'gir'</span> <span class="sy0">=&gt;</span> <span class="st_h">'doom'</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$delete</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="retrieving-table-information">11.10 Retrieving Table Information</h2>
+
+<p>To get a list of tables in the database, issue <code>fetchTableList()</code>:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get the list of tables</span>
+<span class="re0">$list</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchTableList</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// show them</span>
+<span class="kw1">foreach</span> <span class="br0">&#40;</span><span class="re0">$list</span> <span class="kw1">as</span> <span class="re0">$table</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">echo</span> <span class="re0">$table</span> <span class="sy0">.</span> PHP_EOL<span class="sy0">;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<p>To get information about the columns in a table, issue <code>fetchTableCols()</code>:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// the table to get cols for</span>
+<span class="re0">$table</span> <span class="sy0">=</span> <span class="st_h">'foo'</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// get the cols</span>
+<span class="re0">$cols</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchTableCols</span><span class="br0">&#40;</span><span class="re0">$table</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// show them</span>
+<span class="kw1">foreach</span> <span class="br0">&#40;</span><span class="re0">$cols</span> <span class="kw1">as</span> <span class="re0">$name</span> <span class="sy0">=&gt;</span> <span class="re0">$col</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">echo</span> <span class="st0">&quot;Column <span class="es4">$name</span> is of type &quot;</span>
+       <span class="sy0">.</span> <span class="re0">$col</span><span class="sy0">-&gt;</span><span class="me1">type</span>
+       <span class="sy0">.</span> <span class="st0">&quot; with a size of &quot;</span>
+       <span class="sy0">.</span> <span class="re0">$col</span><span class="sy0">-&gt;</span><span class="me1">size</span>
+       <span class="sy0">.</span> PHP_EOL<span class="sy0">;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<p>Each column description is a <code>Column</code> object with the following properties:</p>
+
+<ul>
+<li><p><code>name</code>: (string) The column name</p></li>
+<li><p><code>type</code>: (string) The column data type.  Data types are as reported by the database.</p></li>
+<li><p><code>size</code>: (int) The column size.</p></li>
+<li><p><code>scale</code>: (int) The number of decimal places for the column, if any.</p></li>
+<li><p><code>notnull</code>: (bool) Is the column marked as <code>NOT NULL</code>?</p></li>
+<li><p><code>default</code>: (mixed) The default value for the column. Note that sometimes this will be <code>null</code> if the underlying database is going to set a timestamp automatically.</p></li>
+<li><p><code>autoinc</code>: (bool) Is the column auto-incremented?</p></li>
+<li><p><code>primary</code>: (bool) Is the column part of the primary key?</p></li>
+</ul>
+
+<h2 id="transactions">11.11 Transactions</h2>
+
+<p>Aura SQL connections always start in autocommit mode (the same as PDO). However,
+you can turn off autocommit mode and start a transaction with
+<code>beginTransaction()</code>, then either <code>commit()</code> or <code>rollBack()</code> the transaction.
+Commits and rollbacks cause the connection to go back into autocommit mode.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// turn off autocommit and start a transaction</span>
+<span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">beginTransaction</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+try <span class="br0">&#123;</span>
+    <span class="co1">// ... perform some queries ...</span>
+    <span class="co1">// now commit to the database:</span>
+    <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">commit</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span> catch <span class="br0">&#40;</span>Exception <span class="re0">$e</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="co1">// there was an error, roll back the queries</span>
+    <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">rollBack</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span>
+&nbsp;
+<span class="co1">// at this point we are back in autocommit mode</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">&nbsp;</pre>
+</div>
+
+<h2 id="manual-queries">11.12 Manual Queries</h2>
+
+<p>You can, of course, build and issue your own queries by hand. Use the
+<code>query()</code> method to do so:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$text</span> <span class="sy0">=</span> <span class="st0">&quot;SELECT * FROM foo WHERE id = :id&quot;</span><span class="sy0">;</span>
+<span class="re0">$bind</span> <span class="sy0">=</span> <span class="br0">&#91;</span><span class="st_h">'id'</span> <span class="sy0">=&gt;</span> <span class="nu0">1</span><span class="br0">&#93;</span><span class="sy0">;</span>
+<span class="re0">$stmt</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">query</span><span class="br0">&#40;</span><span class="re0">$text</span><span class="sy0">,</span> <span class="re0">$bind</span><span class="br0">&#41;</span></pre>
+</div>
+
+<p>The returned <code>$stmt</code> is a <a href="http://php.net/PDOStatement">PDOStatement</a> that you
+may manipulate as you wish.</p>
+
+<h2 id="profiling">11.13 Profiling</h2>
+
+<p>You can use profiling to see how well your queries are performing.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// turn on the profiler</span>
+<span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">getProfiler</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">-&gt;</span><span class="me1">setActive</span><span class="br0">&#40;</span><span class="kw4">true</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// issue a query</span>
+<span class="re0">$result</span> <span class="sy0">=</span> <span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">fetchAll</span><span class="br0">&#40;</span><span class="st_h">'SELECT * FROM foo'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// now get the profiler information</span>
+<span class="kw1">foreach</span> <span class="br0">&#40;</span><span class="re0">$connection</span><span class="sy0">-&gt;</span><span class="me1">getProfiler</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">-&gt;</span><span class="me1">getProfiles</span><span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw1">as</span> <span class="re0">$i</span> <span class="sy0">=&gt;</span> <span class="re0">$profile</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">echo</span> <span class="st_h">'Query #'</span> <span class="sy0">.</span> <span class="br0">&#40;</span><span class="re0">$i</span> <span class="sy0">+</span> <span class="nu0">1</span><span class="br0">&#41;</span>
+       <span class="sy0">.</span> <span class="st_h">' took '</span> <span class="sy0">.</span> <span class="re0">$profile</span><span class="sy0">-&gt;</span><span class="kw3">time</span> <span class="sy0">.</span> <span class="st_h">' seconds.'</span>
+       <span class="sy0">.</span> PHP_EOL<span class="sy0">;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">&nbsp;</pre>
+</div>
+
+<p>Each profile object has these properties:</p>
+
+<ul>
+<li><p><code>text</code>: (string) The text of the query.</p></li>
+<li><p><code>time</code>: (float) The time, in seconds, for the query to finish.</p></li>
+<li><p><code>data</code>: (array) Any data bound to the query.</p></li>
+<li><p><code>trace</code>: (array) A <a href="http://php.net/debug_backtrace">debug_backtrace</a> so
+you can tell where the query came from.</p></li>
+</ul>
 
     </div>
 
@@ -219,19 +419,59 @@ did in chapter6, then we can call</p>
             <ul class="unstyled">
                                                 <li class="level-1">
                         <span></span>
-                        <a class="internal" href="./chapter-11.html#connecting-to-database">Connecting to Database</a>
+                        <a class="internal" href="./chapter-11.html#aura-sql">Aura SQL</a>
                     </li>
                                     <li class="level-2">
                         <span>11.1</span>
-                        <a class="internal" href="./chapter-11.html#database-connection">Database Connection</a>
+                        <a class="internal" href="./chapter-11.html#instantiation">Instantiation</a>
                     </li>
                                     <li class="level-2">
                         <span>11.2</span>
-                        <a class="internal" href="./chapter-11.html#creating-your-models">Creating your models</a>
+                        <a class="internal" href="./chapter-11.html#connecting">Connecting</a>
                     </li>
                                     <li class="level-2">
                         <span>11.3</span>
-                        <a class="internal" href="./chapter-11.html#configuration-4">Configuration</a>
+                        <a class="internal" href="./chapter-11.html#fetching-results">Fetching Results</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.4</span>
+                        <a class="internal" href="./chapter-11.html#preventing-sql-injection">Preventing SQL Injection</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.5</span>
+                        <a class="internal" href="./chapter-11.html#query-objects">Query Objects</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.6</span>
+                        <a class="internal" href="./chapter-11.html#select">Select</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.7</span>
+                        <a class="internal" href="./chapter-11.html#insert">Insert</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.8</span>
+                        <a class="internal" href="./chapter-11.html#update">Update</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.9</span>
+                        <a class="internal" href="./chapter-11.html#delete">Delete</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.10</span>
+                        <a class="internal" href="./chapter-11.html#retrieving-table-information">Retrieving Table Information</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.11</span>
+                        <a class="internal" href="./chapter-11.html#transactions">Transactions</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.12</span>
+                        <a class="internal" href="./chapter-11.html#manual-queries">Manual Queries</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>11.13</span>
+                        <a class="internal" href="./chapter-11.html#profiling">Profiling</a>
                     </li>
                                         </ul>
         </div>

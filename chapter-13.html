@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="Hari KT, Paul M Jones" />
-    <meta name="date" content="07/07/2013"/>
+    <meta name="date" content="07/08/2013"/>
     <meta name="generator" content="easybook 5.0-DEV"/>
 
     <title>Creating Forms | The complete reference for Aura</title>
@@ -71,27 +71,29 @@ and override the <code>init()</code> method.</p>
         <span class="co1">// particular set of options (the keys are the option values, and the values</span>
         <span class="co1">// are the displayed text)</span>
         <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'state'</span><span class="sy0">,</span> <span class="st_h">'select'</span><span class="br0">&#41;</span>
-             <span class="sy0">-&gt;</span><span class="me1">setOptions</span><span class="br0">&#40;</span><span class="re0">$states</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+             <span class="sy0">-&gt;</span><span class="me1">setOptions</span><span class="br0">&#40;</span><span class="re0">$states</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="sy0">,</span> <span class="st_h">'textarea'</span><span class="br0">&#41;</span>
+            <span class="sy0">-&gt;</span><span class="me1">setAttribs</span><span class="br0">&#40;</span><span class="br0">&#91;</span>
+                <span class="st_h">'cols'</span> <span class="sy0">=&gt;</span> <span class="nu0">40</span><span class="sy0">,</span>
+                <span class="st_h">'rows'</span> <span class="sy0">=&gt;</span> <span class="nu0">5</span><span class="sy0">,</span>
+            <span class="br0">&#93;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="co1">// etc.</span>
+&nbsp;
+        <span class="co1">// set input filters</span>
+        <span class="re0">$filter</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getFilter</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">addSoftRule</span><span class="br0">&#40;</span><span class="st_h">'first_name'</span><span class="sy0">,</span> <span class="re0">$filter</span><span class="sy0">::</span><span class="me2">IS</span><span class="sy0">,</span> <span class="st_h">'string'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">addSoftRule</span><span class="br0">&#40;</span><span class="st_h">'first_name'</span><span class="sy0">,</span> <span class="re0">$filter</span><span class="sy0">::</span><span class="me2">IS</span><span class="sy0">,</span> <span class="st_h">'strlenMin'</span><span class="sy0">,</span> <span class="nu0">4</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">addSoftRule</span><span class="br0">&#40;</span><span class="st_h">'state'</span><span class="sy0">,</span> <span class="re0">$filter</span><span class="sy0">::</span><span class="me2">IS</span><span class="sy0">,</span> <span class="st_h">'inKeys'</span><span class="sy0">,</span> <span class="re0">$states</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">addSoftRule</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="sy0">,</span> <span class="re0">$filter</span><span class="sy0">::</span><span class="me2">IS</span><span class="sy0">,</span> <span class="st_h">'string'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="re0">$filter</span><span class="sy0">-&gt;</span><span class="me1">addSoftRule</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="sy0">,</span> <span class="re0">$filter</span><span class="sy0">::</span><span class="me2">IS</span><span class="sy0">,</span> <span class="st_h">'strlenMin'</span><span class="sy0">,</span> <span class="nu0">6</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
 </div>
 
-<div class="code code">
-<pre class="code">        $this-&gt;setField('message', 'textarea')
-            -&gt;setAttribs([
-                'cols' =&gt; 40,
-                'rows' =&gt; 5,
-            ]);
-        // etc.
-&nbsp;
-        // set input filters
-        $filter = $this-&gt;getFilter();
-        $filter-&gt;addSoftRule('first_name', $filter::IS, 'string');
-        $filter-&gt;addSoftRule('first_name', $filter::IS, 'strlenMin', 4);
-        $filter-&gt;addSoftRule('state', $filter::IS, 'inKeys', $states);
-        $filter-&gt;addSoftRule('message', $filter::IS, 'string');
-        $filter-&gt;addSoftRule('message', $filter::IS, 'strlenMin', 6);
-    }
-}</pre>
-</div>
+<blockquote>
+  <p>Read passing options into forms, to see how the states can also be provided.</p>
+</blockquote>
 
 <h2 id="setting-filters-on-the-form">13.2 Setting Filters On The Form</h2>
 
@@ -109,7 +111,7 @@ the different types of Rules, how you can create your own rules.</p>
 form names to <code>Example\Package\GenericFactory</code>.</p>
 
 <pre><code>[php]
-$di-&gt;params['Hari\Framework\GenericFactory']['map']['form.contact'] = 
+$di-&gt;params['Example\Package\GenericFactory']['map']['form.contact'] = 
     $di-&gt;newFactory('Example\Package\Input\ContactForm');
 </code></pre>
 
@@ -333,28 +335,24 @@ array with <code>$options-&gt;getStates()</code>.</p>
 
 <div class="code php">
 <pre class="php"><span class="kw2">&lt;?php</span>
-<span class="kw2">namespace</span> Example\Package<span class="sy0">;</span></pre>
-</div>
-
-<div class="code code">
-<pre class="code">use Aura\Input\Form;</pre>
-</div>
-
-<div class="code code">
-<pre class="code">class ContactForm extends Form
-{
-    protected function init()
-    {
-        // the options object injected via constructor
-        $options = $this-&gt;getOptions();
+<span class="kw2">namespace</span> Example\Package<span class="sy0">;</span>
 &nbsp;
-        $states = $options-&gt;getStates();
+<span class="kw2">use</span> Aura\Input\Form<span class="sy0">;</span>
 &nbsp;
-        // set input fields
-        $this-&gt;setField('state', 'select')
-             -&gt;setOptions($states);
-    }
-}</pre>
+<span class="kw2">class</span> ContactForm <span class="kw2">extends</span> Form
+<span class="br0">&#123;</span>
+    <span class="kw2">protected</span> <span class="kw2">function</span> init<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="co1">// the options object injected via constructor</span>
+        <span class="re0">$options</span> <span class="sy0">=</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">getOptions</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="re0">$states</span> <span class="sy0">=</span> <span class="re0">$options</span><span class="sy0">-&gt;</span><span class="me1">getStates</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="co1">// set input fields</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">setField</span><span class="br0">&#40;</span><span class="st_h">'state'</span><span class="sy0">,</span> <span class="st_h">'select'</span><span class="br0">&#41;</span>
+             <span class="sy0">-&gt;</span><span class="me1">setOptions</span><span class="br0">&#40;</span><span class="re0">$states</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
 </div>
 
 <h2 id="configuration-for-options">13.9 Configuration for Options</h2>
@@ -384,7 +382,7 @@ array with <code>$options-&gt;getStates()</code>.</p>
                     </li>
                                     <li class="level-2">
                         <span>13.2</span>
-                        <a class="internal" href="./91.html#setting-filters-on-the-form">Setting Filters On The Form</a>
+                        <a class="internal" href="./chapter-13.html#setting-filters-on-the-form">Setting Filters On The Form</a>
                     </li>
                                     <li class="level-2">
                         <span>13.3</span>
@@ -396,11 +394,11 @@ array with <code>$options-&gt;getStates()</code>.</p>
                     </li>
                                     <li class="level-2">
                         <span>13.5</span>
-                        <a class="internal" href="./91.html#populating-and-validating-user-input">Populating and Validating User Input</a>
+                        <a class="internal" href="./chapter-13.html#populating-and-validating-user-input">Populating and Validating User Input</a>
                     </li>
                                     <li class="level-2">
                         <span>13.6</span>
-                        <a class="internal" href="./91.html#applying-csrf-protections">Applying CSRF Protections</a>
+                        <a class="internal" href="./chapter-13.html#applying-csrf-protections">Applying CSRF Protections</a>
                     </li>
                                     <li class="level-2">
                         <span>13.7</span>
@@ -408,7 +406,7 @@ array with <code>$options-&gt;getStates()</code>.</p>
                     </li>
                                     <li class="level-2">
                         <span>13.8</span>
-                        <a class="internal" href="./91.html#passing-options-into-forms">Passing Options Into Forms</a>
+                        <a class="internal" href="./chapter-13.html#passing-options-into-forms">Passing Options Into Forms</a>
                     </li>
                                     <li class="level-2">
                         <span>13.9</span>

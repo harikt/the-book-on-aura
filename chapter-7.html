@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="Hari KT, Paul M Jones" />
-    <meta name="date" content="07/07/2013"/>
+    <meta name="date" content="07/08/2013"/>
     <meta name="generator" content="easybook 5.0-DEV"/>
 
     <title>Routing | The complete reference for Aura</title>
@@ -20,7 +20,7 @@
         <p class="span3">
                         <a href="./chapter-6.html"><span>&larr;</span> Previous</a>
             
-                        <a href="./chapter-9.html">Next <span>&rarr;</span></a>
+                        <a href="./chapter-8.html">Next <span>&rarr;</span></a>
                     </p>
     </div>
 </div>
@@ -344,6 +344,28 @@ you don't need to repeat common information:</p>
 <span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
 </div>
 
+<h2 id="inside-controller-2">7.8 Inside controller</h2>
+
+<p>RouterMap objects are availble inside controller as <code>$this-&gt;router</code></p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">router</span><span class="sy0">-&gt;</span><span class="me1">generategenerate</span><span class="br0">&#40;</span><span class="st_h">'read'</span><span class="sy0">,</span> <span class="br0">&#91;</span>
+    <span class="st_h">'id'</span> <span class="sy0">=&gt;</span> <span class="nu0">42</span><span class="sy0">,</span>
+    <span class="st_h">'format'</span> <span class="sy0">=&gt;</span> <span class="st_h">'.atom'</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="inside-view">7.9 Inside view</h2>
+
+<p>You can generate routes as</p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">route</span><span class="br0">&#40;</span><span class="st_h">'read'</span><span class="sy0">,</span> <span class="br0">&#91;</span>
+    <span class="st_h">'id'</span> <span class="sy0">=&gt;</span> <span class="nu0">42</span><span class="sy0">,</span>
+    <span class="st_h">'format'</span> <span class="sy0">=&gt;</span> <span class="st_h">'.atom'</span><span class="sy0">,</span>
+<span class="br0">&#93;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
     </div>
 
     <div class="span3">
@@ -353,35 +375,43 @@ you don't need to repeat common information:</p>
             <ul class="unstyled">
                                                 <li class="level-1">
                         <span></span>
-                        <a class="internal" href="./71.html#routing">Routing</a>
+                        <a class="internal" href="./chapter-7.html#routing">Routing</a>
                     </li>
                                     <li class="level-2">
                         <span>7.1</span>
-                        <a class="internal" href="./71.html#adding-a-route">Adding A Route</a>
+                        <a class="internal" href="./chapter-7.html#adding-a-route">Adding A Route</a>
                     </li>
                                     <li class="level-2">
                         <span>7.2</span>
-                        <a class="internal" href="./71.html#generating-a-route-path">Generating A Route Path</a>
+                        <a class="internal" href="./chapter-7.html#generating-a-route-path">Generating A Route Path</a>
                     </li>
                                     <li class="level-2">
                         <span>7.3</span>
-                        <a class="internal" href="./71.html#advanced-usage">Advanced Usage</a>
+                        <a class="internal" href="./chapter-7.html#advanced-usage">Advanced Usage</a>
                     </li>
                                     <li class="level-2">
                         <span>7.4</span>
-                        <a class="internal" href="./71.html#complex-route-specification">Complex Route Specification</a>
+                        <a class="internal" href="./chapter-7.html#complex-route-specification">Complex Route Specification</a>
                     </li>
                                     <li class="level-2">
                         <span>7.5</span>
-                        <a class="internal" href="./71.html#simple-routes">Simple Routes</a>
+                        <a class="internal" href="./chapter-7.html#simple-routes">Simple Routes</a>
                     </li>
                                     <li class="level-2">
                         <span>7.6</span>
-                        <a class="internal" href="./71.html#wildcard-routes">Wildcard Routes</a>
+                        <a class="internal" href="./chapter-7.html#wildcard-routes">Wildcard Routes</a>
                     </li>
                                     <li class="level-2">
                         <span>7.7</span>
-                        <a class="internal" href="./71.html#attaching-route-groups">Attaching Route Groups</a>
+                        <a class="internal" href="./chapter-7.html#attaching-route-groups">Attaching Route Groups</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>7.8</span>
+                        <a class="internal" href="./chapter-7.html#inside-controller-2">Inside controller</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>7.9</span>
+                        <a class="internal" href="./chapter-7.html#inside-view">Inside view</a>
                     </li>
                                         </ul>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="Hari KT, Paul M Jones" />
-    <meta name="date" content="07/07/2013"/>
+    <meta name="date" content="07/08/2013"/>
     <meta name="generator" content="easybook 5.0-DEV"/>
 
     <title>Package Organization | The complete reference for Aura</title>
@@ -178,7 +178,7 @@ the routes. Its time to add it in the configuration.</p>
 <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Aura\Framework\Web\Controller\Factory'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'map'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'greet'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="st_h">'Example\Package\Web\Greet\Page'</span><span class="sy0">;</span></pre>
 </div>
 
-<p>Save the files as <code>default.php</code> in 'Example.Package/config' folder.</p>
+<p>Save the files as <code>default.php</code> in <code>Example.Package/config</code> folder.</p>
 
 <h2 id="loading-your-package">4.5 Loading your package</h2>
 
@@ -187,7 +187,7 @@ you need to add your package in the <code>{$system}/config/_packages</code> file
 
 <p>This is because some packages, depend on another package. So the configuration
 needs to be loaded first. The packages are loaded in the order it is 
-written in <code>config/_packages</code> file.</p>
+written in <code>{$system}/config/_packages</code> file.</p>
 
 <h2 id="try-it-out">4.6 Try it out</h2>
 
