@@ -3,10 +3,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="Hari KT, Paul M Jones" />
-    <meta name="date" content="07/08/2013"/>
+    <meta name="date" content="07/09/2013"/>
     <meta name="generator" content="easybook 5.0-DEV"/>
 
-    <title>Generic Factory | The complete reference for Aura</title>
+    <title>Generic Factory | The book on Aura</title>
 
     <link rel="stylesheet" href="./css/easybook.css" />
 
@@ -16,7 +16,7 @@
 <div class="container">
 <div class="menu">
     <div class="row">
-        <h1 class="span9"><a href="./index.html">The complete reference for Aura</a></h1>
+        <h1 class="span9"><a href="./index.html">The book on Aura</a></h1>
         <p class="span3">
                         <a href="./chapter-8.html"><span>&larr;</span> Previous</a>
             
@@ -76,6 +76,8 @@ doesn't provide one.</p>
 <span class="kw2">namespace</span> Example\Package\Web<span class="sy0">;</span>
 &nbsp;
 <span class="kw2">use</span> Aura\Framework\Web\Controller\AbstractPage<span class="sy0">;</span>
+<span class="kw2">use</span> Example\Package\GenericFactory<span class="sy0">;</span>
+&nbsp;
 <span class="kw2">abstract</span> <span class="kw2">class</span> PageController <span class="kw2">extends</span> AbstractPage
 <span class="br0">&#123;</span>        
     <span class="kw2">protected</span> <span class="re0">$factory</span><span class="sy0">;</span>

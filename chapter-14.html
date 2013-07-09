@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="author" content="Hari KT, Paul M Jones" />
+    <meta name="date" content="07/09/2013"/>
+    <meta name="generator" content="easybook 5.0-DEV"/>
+
+    <title>Session | The book on Aura</title>
+
+    <link rel="stylesheet" href="./css/easybook.css" />
+
+</head>
+
+<body class="item chapter">
+<div class="container">
+<div class="menu">
+    <div class="row">
+        <h1 class="span9"><a href="./index.html">The book on Aura</a></h1>
+        <p class="span3">
+                        <a href="./chapter-13.html"><span>&larr;</span> Previous</a>
+            
+                        <a class="disabled" href="#">Next <span>&rarr;</span></a>
+                    </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span9">
+        <h1 id="session"><span>Chapter 14</span> Session</h1>
+        <p>The aura framework make use of Aura.Session package, 
+which provides session management functionality, including session
+segments, read-once ("flash") values, CSRF tools, and lazy session starting.</p>
+
+<h2 id="inside-controller-3">14.1 Inside controller</h2>
+
+<p>The controller doesn't have <code>Aura\Session\Manager</code> object. So let us add a
+method <code>setSessionManager</code> in the controller to make use of setter 
+injection.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Example\Package\Web<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\Framework\Web\Controller\AbstractPage<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Session\Manager <span class="kw1">as</span> SessionManager<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">abstract</span> <span class="kw2">class</span> PageController <span class="kw2">extends</span> AbstractPage
+<span class="br0">&#123;</span>        
+    <span class="kw2">protected</span> <span class="re0">$session_manager</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> setSessionManager<span class="br0">&#40;</span>SessionManager <span class="re0">$session_manager</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">session_manager</span> <span class="sy0">=</span> <span class="re0">$session_manager</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> getSessionManager<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="kw1">return</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">session_manager</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="co1">// .. rest of your methods </span>
+<span class="br0">&#125;</span>
+&nbsp;</pre>
+</div>
+
+<h3 id="configuration-6">14.1.1 Configuration</h3>
+
+<div class="code php">
+<pre class="php"><span class="co1">// Session Manager</span>
+<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">setter</span><span class="br0">&#91;</span><span class="st_h">'Example\Package\Web\PageController'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'setSessionManager'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">lazyGet</span><span class="br0">&#40;</span><span class="st_h">'session_manager'</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>And now we can get the object of <code>Aura\Session\Manager</code> inside controller 
+as</p>
+
+<pre><code>[php]
+$session = $this-&gt;getSessionManager();
+</code></pre>
+
+<p>and make use of it.</p>
+
+<h2 id="inside-view-2">14.2 Inside view</h2>
+
+<p>In-order to get session manager we need to create a view helper and 
+inject the <code>Aura\Session\Manager</code> object.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="kw2">namespace</span> Example\Package\View\Helper<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">use</span> Aura\View\Helper\AbstractHelper<span class="sy0">;</span>
+<span class="kw2">use</span> Aura\Session\Manager<span class="sy0">;</span>
+&nbsp;
+<span class="kw2">class</span> SessionManager <span class="kw2">extends</span> AbstractHelper
+<span class="br0">&#123;</span>
+    <span class="kw2">protected</span> <span class="re0">$session_manager</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> __construct<span class="br0">&#40;</span>Manager <span class="re0">$session_manager</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">session_manager</span> <span class="sy0">=</span> <span class="re0">$session_manager</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+&nbsp;
+    <span class="kw2">public</span> <span class="kw2">function</span> __invoke<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="br0">&#123;</span>
+        <span class="kw1">return</span> <span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">session_manager</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h3 id="configuration-7">14.2.1 Configuration</h3>
+
+<div class="code php">
+<pre class="php"><span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Example\Package\View\Helper\SessionManager'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'session_manager'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">lazyGet</span><span class="br0">&#40;</span><span class="st_h">'session_manager'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">params</span><span class="br0">&#91;</span><span class="st_h">'Aura\View\HelperLocator'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'registry'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'sessionManager'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="kw2">function</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw2">use</span> <span class="br0">&#40;</span><span class="re0">$di</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">return</span> <span class="re0">$di</span><span class="sy0">-&gt;</span><span class="me1">newInstance</span><span class="br0">&#40;</span><span class="st_h">'Example\Package\View\Helper\SessionManager'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span><span class="sy0">;</span>
+&nbsp;</pre>
+</div>
+
+<p>And once you are done with the configuration, you can get the 
+<code>Aura\Session\Manger</code> object within the view like</p>
+
+<div class="code php">
+<pre class="php"><span class="re0">$this</span><span class="sy0">-&gt;</span><span class="me1">sessionManger</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="segments">14.3 Segments</h2>
+
+<p>A session segment is a reference to an array key in the <code>$_SESSION</code>
+superglobal. For example, if you ask for a segment named <code>ClassName</code>, the
+segment will be a reference to <code>$_SESSION['ClassName']</code>. All values in the
+<code>ClassName</code> segment will be stored in an array under that key.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get a session segment; starts the session if it is not already,</span>
+<span class="co1">// and creates the $_SESSION key if it does not exist.</span>
+<span class="re0">$segment</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">newSegment</span><span class="br0">&#40;</span><span class="st_h">'Vendor\Package\ClassName'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// set some values on the segment</span>
+<span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">foo</span> <span class="sy0">=</span> <span class="st_h">'bar'</span><span class="sy0">;</span>
+<span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">baz</span> <span class="sy0">=</span> <span class="st_h">'dib'</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// the $_SESSION superglobal is now:</span>
+<span class="co1">// $_SESSION = [</span>
+<span class="co1">//      'Vendor\Package\ClassName' =&gt; [</span>
+<span class="co1">//          'foo' =&gt; 'bar',</span>
+<span class="co1">//          'baz' =&gt; 'dib',</span>
+<span class="co1">//      ],</span>
+<span class="co1">// ];</span>
+&nbsp;
+<span class="co1">// get the values from the segment</span>
+<span class="kw1">echo</span> <span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">foo</span><span class="sy0">;</span> <span class="co1">// 'bar'</span>
+&nbsp;
+<span class="co1">// because the segment is a reference to $_SESSION, you can modify</span>
+<span class="co1">// the superglobal directly and the segment values will also change.</span>
+<span class="re0">$_SESSION</span><span class="br0">&#91;</span><span class="st_h">'Vendor\Package\ClassName'</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="st_h">'zim'</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="st_h">'gir'</span>
+<span class="kw1">echo</span> <span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">zim</span><span class="sy0">;</span> <span class="co1">// 'gir'</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">&nbsp;</pre>
+</div>
+
+<p>The benefit of a session segment is that we can deconflict the keys in the
+<code>$_SESSION</code> superglobal by using class names (or some other unique name) for
+the segment names. With segments, different packages can use the <code>$_SESSION</code>
+superglobal without stepping on each other's toes.</p>
+
+<h2 id="lazy-session-starting">14.4 Lazy Session Starting</h2>
+
+<p>Merely instantiating the <code>Manager</code> and getting a session segment does <em>not</em>
+start a session automatically. Instead, the session is started only when you
+read or write to a session segment.  This means we can create segments at
+will, and no session will start until we read from or write to one them.</p>
+
+<p>If we <em>read</em> from a session segment, it will check to see if a previously
+available session exists, and reactivate it if it does. Reading from a segment
+will not start a new session.</p>
+
+<p>If we <em>write</em> to a session segment, it will check to see if a previously
+available session exists, and reactivate it if it does. If there is no
+previously available session, it will start a new session, and write to it.</p>
+
+<p>Of course, we can force a session start or reactivation by calling the
+<code>Manager</code>'s <code>start()</code> method, but that defeats the purpose of lazy-loaded
+sessions.</p>
+
+<h2 id="session-security">14.5 Session Security</h2>
+
+<p>When you are done with a session and want its data to be available later, call
+the <code>commit()</code> method:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">commit</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>The aura framework already have a <code>commit()</code> method at the end of the 
+<code>post_exec</code> signal.</p>
+
+<blockquote>
+  <p>N.b.: The <code>commit()</code> method is the equivalent of <code>session_write_close()</code>. 
+  If you do not commit the session, its values will not be available when we 
+  continue the session later.</p>
+</blockquote>
+
+<p>Any time a user has a change in privilege (that is, gaining or losing access
+rights within a system) be sure to regenerate the session ID:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">regenerateId</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">&nbsp;</pre>
+</div>
+
+<blockquote>
+  <p>N.b.: The <code>regenerateId()</code> method also regenerates the CSRF token value.</p>
+</blockquote>
+
+<p>To clear the in-memory session data, but leave the session active, use the
+<code>clear()</code> method:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">clear</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>To end a session and remove its data (both committed and in-memory), generally
+after a user signs out or when authentication timeouts occur, call the
+<code>destroy()</code> method:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">destroy</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="read-once-flash-values">14.6 Read-Once ("Flash") Values</h2>
+
+<p>Session segment values persist until a session is cleared or destroyed.
+However, sometimes it is useful to set a value that propagates only until it
+is used, and then automatically clears itself. These are called "flash" or
+"read-once" values.</p>
+
+<p>To set a read-once value on a segment, use the <code>setFlash()</code> method.</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get a segment</span>
+<span class="re0">$segment</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">newSegment</span><span class="br0">&#40;</span><span class="st_h">'Vendor\Package\ClassName'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// set a read-once value on the segment</span>
+<span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">setFlash</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="sy0">,</span> <span class="st_h">'Hello world!'</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<p>Then, in subsequent sessions, we can read the flash value using <code>getFlash()</code>:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get a segment</span>
+<span class="re0">$segment</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">newSegment</span><span class="br0">&#40;</span><span class="st_h">'Vendor\Package\ClassName'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// get the read-once value</span>
+<span class="re0">$message</span> <span class="sy0">=</span> <span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">getFlash</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="br0">&#41;</span><span class="sy0">;</span> <span class="co1">// 'Hello world!'</span>
+&nbsp;
+<span class="co1">// if we try to read it again, it won't be there</span>
+<span class="re0">$not_there</span> <span class="sy0">=</span> <span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">getFlash</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="br0">&#41;</span><span class="sy0">;</span> <span class="co1">// null</span></pre>
+</div>
+
+<p>Sometimes we need to know if a flash value exists, but don't want to read it
+yet (thereby removing it from the session). In these cases, we can use the
+<code>hasFlash()</code> method:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get a segment</span>
+<span class="re0">$segment</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">newSegment</span><span class="br0">&#40;</span><span class="st_h">'Vendor\Package\ClassName'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// is there a read-once 'message' available?</span>
+<span class="co1">// this will *not* cause a read-once removal.</span>
+<span class="kw1">if</span> <span class="br0">&#40;</span><span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">hasFlash</span><span class="br0">&#40;</span><span class="st_h">'message'</span><span class="br0">&#41;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="kw1">echo</span> <span class="st0">&quot;Yes, there is a message available.&quot;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span> <span class="kw1">else</span> <span class="br0">&#123;</span>
+    <span class="kw1">echo</span> <span class="st0">&quot;No message available.&quot;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<div class="code code">
+<pre class="code">&nbsp;</pre>
+</div>
+
+<p>To clear all flash values on a segment, use the <code>clearFlash()</code> method:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co1">// get a segment</span>
+<span class="re0">$segment</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">newSegment</span><span class="br0">&#40;</span><span class="st_h">'Vendor\Package\ClassName'</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">// clear all flash values, but leave all other segment values in place</span>
+<span class="re0">$segment</span><span class="sy0">-&gt;</span><span class="me1">clearFlash</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+</div>
+
+<h2 id="cross-site-request-forgery">14.7 Cross-Site Request Forgery</h2>
+
+<p>A "cross-site request forgery" is a security issue where the attacker, via
+malicious JavaScript or other means, issues a request in-the-blind from a
+client browser to a server where the user has already authenticated. The
+request <em>looks</em> valid to the server, but in fact is a forgery, since the user
+did not actually make the request (the malicious JavaScript did).</p>
+
+<p><a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">http://en.wikipedia.org/wiki/Cross-site_request_forgery</a></p>
+
+<h2 id="defending-against-csrf">14.8 Defending Against CSRF</h2>
+
+<p>To defend against CSRF attacks, server-side logic should:</p>
+
+<ol>
+<li><p>Place a token value unique to each authenticated user session in each form;
+and</p></li>
+<li><p>Check that all incoming POST/PUT/DELETE (i.e., "unsafe") requests contain
+that value.</p></li>
+</ol>
+
+<blockquote>
+  <p>N.b.: If our application uses GET requests to modify resources (which
+  incidentally is an improper use of GET), we should also check for CSRF on
+  GET requests from authenticated users.</p>
+</blockquote>
+
+<p>For this example, the form field name will be <code>'__csrf_value''</code>. In each form
+we want to protect against CSRF, we use the session CSRF token value for that
+field:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co4">/**  
+ * @var Vendor\Package\User $user A user-authentication object.
+ * @var Aura\Session\Manager $session A session management object.
+ */</span>
+<span class="sy1">?&gt;</span>
+&lt;form method=&quot;post&quot;&gt;
+&nbsp;
+    <span class="kw2">&lt;?php</span> <span class="kw1">if</span> <span class="br0">&#40;</span><span class="re0">$user</span><span class="sy0">-&gt;</span><span class="me1">isAuthenticated</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="re0">$csrf_value</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">getCsrfToken</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">-&gt;</span><span class="me1">getValue</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+        <span class="kw1">echo</span> <span class="st_h">'&lt;input type=&quot;hidden&quot; name=&quot;__csrf_value&quot; value=&quot;'</span>
+           <span class="sy0">.</span> <span class="re0">$csrf_value</span>
+           <span class="sy0">.</span> <span class="st_h">'&quot;&gt;&lt;/input&gt;'</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span> <span class="sy1">?&gt;</span>
+&nbsp;
+    &lt;!-- other form fields --&gt;
+&nbsp;
+&lt;/form&gt;</pre>
+</div>
+
+<p>When processing the request, check to see if the incoming CSRF token is valid
+for the authenticated user:</p>
+
+<div class="code php">
+<pre class="php"><span class="kw2">&lt;?php</span>
+<span class="co4">/**  
+ * @var Vendor\Package\User $user A user-authentication object.
+ * @var Aura\Session\Manager $session A session management object.
+ */</span>
+&nbsp;
+<span class="re0">$unsafe</span> <span class="sy0">=</span> <span class="re0">$_SERVER</span><span class="br0">&#91;</span><span class="st_h">'REQUEST_METHOD'</span><span class="br0">&#93;</span> <span class="sy0">==</span> <span class="st_h">'POST'</span>
+       <span class="sy0">||</span> <span class="re0">$_SERVER</span><span class="br0">&#91;</span><span class="st_h">'REQUEST_METHOD'</span><span class="br0">&#93;</span> <span class="sy0">==</span> <span class="st_h">'PUT'</span>
+       <span class="sy0">||</span> <span class="re0">$_SERVER</span><span class="br0">&#91;</span><span class="st_h">'REQUEST_METHOD'</span><span class="br0">&#93;</span> <span class="sy0">==</span> <span class="st_h">'DELETE'</span><span class="sy0">;</span>
+&nbsp;
+<span class="kw1">if</span> <span class="br0">&#40;</span><span class="re0">$unsafe</span> <span class="sy0">&amp;&amp;</span> <span class="re0">$user</span><span class="sy0">-&gt;</span><span class="me1">isAuthenticated</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="re0">$csrf_value</span> <span class="sy0">=</span> <span class="re0">$_POST</span><span class="br0">&#91;</span><span class="st_h">'__csrf_value'</span><span class="br0">&#93;</span><span class="sy0">;</span>
+    <span class="re0">$csrf_token</span> <span class="sy0">=</span> <span class="re0">$session</span><span class="sy0">-&gt;</span><span class="me1">getCsrfToken</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">if</span> <span class="br0">&#40;</span><span class="sy0">!</span> <span class="re0">$csrf_token</span><span class="sy0">-&gt;</span><span class="me1">isValid</span><span class="br0">&#40;</span><span class="re0">$csrf_value</span><span class="br0">&#41;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+        <span class="kw1">echo</span> <span class="st0">&quot;This looks like a cross-site request forgery.&quot;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span> <span class="kw1">else</span> <span class="br0">&#123;</span>
+        <span class="kw1">echo</span> <span class="st0">&quot;This looks like a valid request.&quot;</span><span class="sy0">;</span>
+    <span class="br0">&#125;</span>
+<span class="br0">&#125;</span> <span class="kw1">else</span> <span class="br0">&#123;</span>
+    <span class="kw1">echo</span> <span class="st0">&quot;CSRF attacks only affect unsafe requests by authenticated users.&quot;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span></pre>
+</div>
+
+<h2 id="csrf-value-generation">14.9 CSRF Value Generation</h2>
+
+<p>For a CSRF token to be useful, its random value must be cryptographically
+secure. Using things like <code>mt_rand()</code> is insufficient. Aura.Session comes with
+a <code>Randval</code> class that implements a <code>RandvalInterface</code>, and uses either the
+<code>openssl</code> or the <code>mcrypt</code> extension to generate a random value. If you do not
+have one of these extensions installed, you will need your own random-value
+implementation of the <code>RandvalInterface</code>. We suggest a wrapper around
+<a href="https://github.com/ircmaxell/RandomLib">RandomLib</a>.</p>
+
+    </div>
+
+    <div class="span3">
+        <div class="item local_toc">
+            <h3>Table of contents</h3>
+
+            <ul class="unstyled">
+                                                <li class="level-1">
+                        <span></span>
+                        <a class="internal" href="./chapter-14.html#session">Session</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.1</span>
+                        <a class="internal" href="./chapter-14.html#inside-controller-3">Inside controller</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.2</span>
+                        <a class="internal" href="./chapter-14.html#inside-view-2">Inside view</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.3</span>
+                        <a class="internal" href="./chapter-14.html#segments">Segments</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.4</span>
+                        <a class="internal" href="./chapter-14.html#lazy-session-starting">Lazy Session Starting</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.5</span>
+                        <a class="internal" href="./chapter-14.html#session-security">Session Security</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.6</span>
+                        <a class="internal" href="./chapter-14.html#read-once-flash-values">Read-Once ("Flash") Values</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.7</span>
+                        <a class="internal" href="./chapter-14.html#cross-site-request-forgery">Cross-Site Request Forgery</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.8</span>
+                        <a class="internal" href="./chapter-14.html#defending-against-csrf">Defending Against CSRF</a>
+                    </li>
+                                    <li class="level-2">
+                        <span>14.9</span>
+                        <a class="internal" href="./chapter-14.html#csrf-value-generation">CSRF Value Generation</a>
+                    </li>
+                                        </ul>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
