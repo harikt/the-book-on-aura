@@ -9,6 +9,4 @@ and source code lies at manuals folder of
 
 ## Contributing ##
 
-Fork and contribute to the manuals 
-
-    [https://github.com/auraphp/auraphp.github.com](https://github.com/auraphp/auraphp.github.com)
+Fork and contribute to the manuals [https://github.com/auraphp/auraphp.github.com](https://github.com/auraphp/auraphp.github.com)
